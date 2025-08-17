@@ -151,6 +151,12 @@ public class BasePreferencePage extends PreferencePage {
                 userNameTxt.selectAll();
             }
         });
+        userNameTxt.addListener(SWT.FocusOut, new Listener() {
+            public void handleEvent(Event e) {
+                String userNameStr = userNameTxt.getText().trim();
+                userNameTxt.setText(userNameStr);
+            }
+        });
         userNameTxt.addModifyListener(new ModifyListener() {
             @Override
             public void modifyText(ModifyEvent e) {
