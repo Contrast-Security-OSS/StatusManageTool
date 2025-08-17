@@ -277,13 +277,24 @@ public class VulTabItem extends CTabItem implements PropertyChangeListener {
                 detectedDateLabelUpdate();
             }
         });
-        // 任意機関
+        // 任意の期間
         traceTermPeriod = new Button(detectTermGrp, SWT.RADIO);
         traceTermPeriod.setText("任意");
         traceDetectedRadios.add(traceTermPeriod);
         traceTermPeriod.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
+                String datePeriodStr = ps.getString(PreferenceConstants.DETECT_PERIOD);
+                if (datePeriodStr.matches("^\\d{13}-\\d{13}$")) {
+                    String[] periodArray = datePeriodStr.split("-");
+                    if (periodArray.length > 1) {
+                        long frms = Long.parseLong(periodArray[0]);
+                        long toms = Long.parseLong(periodArray[1]);
+                        frDetectedDate = new Date(frms);
+                        toDetectedDate = new Date(toms);
+                    }
+                }
+                detectedDateLabelUpdate();
             }
         });
         traceDetectedFilterTxt = new Text(detectTermGrp, SWT.BORDER);
@@ -303,6 +314,11 @@ public class VulTabItem extends CTabItem implements PropertyChangeListener {
                 }
                 frDetectedDate = filterDialog.getFrDate();
                 toDetectedDate = filterDialog.getToDate();
+                if (frDetectedDate.getTime() > toDetectedDate.getTime()) {
+                    MessageDialog.openError(toolShell, "任意の期間", "取得期間のFrom, Toの指定が不正です。");
+                    return;
+                }
+                ps.setValue(PreferenceConstants.DETECT_PERIOD, String.format("%s-%s", frDetectedDate.getTime(), toDetectedDate.getTime()));
                 detectedDateLabelUpdate();
                 if (!traceDetectedFilterTxt.getText().isEmpty()) {
                     for (Button rdo : traceDetectedRadios) {
