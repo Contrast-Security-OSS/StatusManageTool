@@ -1,0 +1,13 @@
+/bin
+/build
+/.gradle
+/.settings
+/ini
+/log
+/work
+/contrast_security.yaml
+/statusmanagetool.properties
+/statusmanagetool.log
+.DS_Store
+contrast-code.pfx
+*.csv
