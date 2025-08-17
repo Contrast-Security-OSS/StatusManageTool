@@ -24,6 +24,7 @@
 package com.contrastsecurity.statusmanagetool;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -50,7 +51,7 @@ public class StatusMarkWithProgress implements IRunnableWithProgress {
     private StatusEnum status;
     private SubStatusEnum subStatus;
     private String note;
-    private ContrastJson json;
+    private List<ContrastJson> jsonList;
 
     Logger logger = LogManager.getLogger("csvdltool"); //$NON-NLS-1$
 
@@ -67,8 +68,8 @@ public class StatusMarkWithProgress implements IRunnableWithProgress {
     @Override
     public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
         SubMonitor subMonitor = SubMonitor.convert(monitor).setWorkRemaining(this.targetMap.size());
-        monitor.setTaskName("攻撃イベント一覧の読み込み...");
-
+        monitor.setTaskName("脆弱性のステータスを更新しています...");
+        this.jsonList = new ArrayList<ContrastJson>();
         for (Map.Entry<Organization, List<ItemForVulnerability>> entry : this.targetMap.entrySet()) {
             Organization org = entry.getKey();
             List<ItemForVulnerability> vulns = entry.getValue();
@@ -77,7 +78,7 @@ public class StatusMarkWithProgress implements IRunnableWithProgress {
                 monitor.subTask(String.format("%d件更新しています。", vulns.size()));
                 Api statusMarkApi = new StatusMarkApi(this.shell, this.ps, org, vulns, this.status, this.subStatus, this.note);
                 ContrastJson resJson = (ContrastJson) statusMarkApi.put();
-                this.json = resJson;
+                this.jsonList.add(resJson);
                 subMonitor.worked(1);
                 Thread.sleep(500);
             } catch (OperationCanceledException oce) {
@@ -89,8 +90,8 @@ public class StatusMarkWithProgress implements IRunnableWithProgress {
         subMonitor.done();
     }
 
-    public ContrastJson getJson() {
-        return json;
+    public List<ContrastJson> getJsonList() {
+        return jsonList;
     }
 
 }

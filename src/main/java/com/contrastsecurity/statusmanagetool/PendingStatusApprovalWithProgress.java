@@ -49,7 +49,7 @@ public class PendingStatusApprovalWithProgress implements IRunnableWithProgress 
     private Map<Organization, List<ItemForVulnerability>> targetMap;
     private boolean approved;
     private String note;
-    private PendingStatusApprovalJson json;
+    private List<PendingStatusApprovalJson> jsonList;
 
     Logger logger = LogManager.getLogger("csvdltool"); //$NON-NLS-1$
 
@@ -71,8 +71,7 @@ public class PendingStatusApprovalWithProgress implements IRunnableWithProgress 
     @Override
     public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
         SubMonitor subMonitor = SubMonitor.convert(monitor).setWorkRemaining(this.targetMap.size());
-        monitor.setTaskName("攻撃イベント一覧の読み込み...");
-
+        monitor.setTaskName(this.approved ? "保留中の脆弱性ステータスを承認しています..." : "保留中の脆弱性ステータスを拒否しています...");
         for (Map.Entry<Organization, List<ItemForVulnerability>> entry : this.targetMap.entrySet()) {
             Organization org = entry.getKey();
             List<ItemForVulnerability> vulns = entry.getValue();
@@ -84,7 +83,7 @@ public class PendingStatusApprovalWithProgress implements IRunnableWithProgress 
                 monitor.subTask(String.format("%d件更新しています。", vulns.size()));
                 Api pendingStatusApprovalApi = new ApprovalWorkflowApi(this.shell, this.ps, org, vulns, this.approved, this.note);
                 PendingStatusApprovalJson resJson = (PendingStatusApprovalJson) pendingStatusApprovalApi.post();
-                this.json = resJson;
+                this.jsonList.add(resJson);
                 subMonitor.worked(1);
                 Thread.sleep(500);
             } catch (OperationCanceledException oce) {
@@ -96,8 +95,8 @@ public class PendingStatusApprovalWithProgress implements IRunnableWithProgress 
         subMonitor.done();
     }
 
-    public PendingStatusApprovalJson getJson() {
-        return json;
+    public List<PendingStatusApprovalJson> getJsonList() {
+        return jsonList;
     }
 
 }

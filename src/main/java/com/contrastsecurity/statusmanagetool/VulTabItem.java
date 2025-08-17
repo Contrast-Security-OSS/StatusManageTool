@@ -53,6 +53,7 @@ import org.eclipse.swt.widgets.Text;
 import com.contrastsecurity.statusmanagetool.exception.ApiException;
 import com.contrastsecurity.statusmanagetool.exception.NonApiException;
 import com.contrastsecurity.statusmanagetool.json.ContrastJson;
+import com.contrastsecurity.statusmanagetool.json.PendingStatusApprovalJson;
 import com.contrastsecurity.statusmanagetool.model.Filter;
 import com.contrastsecurity.statusmanagetool.model.ItemForVulnerability;
 import com.contrastsecurity.statusmanagetool.model.Note;
@@ -699,17 +700,30 @@ public class VulTabItem extends CTabItem implements PropertyChangeListener {
                 ProgressMonitorDialog progDialog = new StatusMarkProgressMonitorDialog(toolShell);
                 try {
                     progDialog.run(true, true, progress);
-                    ContrastJson resJson = progress.getJson();
-                    if (Boolean.valueOf(resJson.getSuccess())) {
-                        MessageBox messageBox = new MessageBox(toolShell, SWT.ICON_INFORMATION | SWT.OK);
-                        messageBox.setText("ステータス更新");
-                        List<String> messages = resJson.getMessages();
-                        messages.add("※ ステータスが更新されているので、確認する際は再取得をお願いいたします。");
-                        messageBox.setMessage(String.join("\r\n", messages));
-                        messageBox.open();
-                    } else {
-
+                    List<ContrastJson> resJsonList = progress.getJsonList();
+                    int successCnt = 0;
+                    List<String> messageList = new ArrayList<String>();
+                    for (ContrastJson contrastJson : resJsonList) {
+                        if (Boolean.valueOf(contrastJson.getSuccess())) {
+                            successCnt++;
+                        }
+                        messageList.addAll(contrastJson.getMessages());
                     }
+                    MessageBox messageBox = null;
+                    if (resJsonList.size() == successCnt) {
+                        messageBox = new MessageBox(toolShell, SWT.ICON_INFORMATION | SWT.OK);
+                        messageList.add("※ ステータスが更新されているので、確認する際は再取得をお願いいたします。");
+                        messageBox.setMessage(String.join("\r\n", messageList));
+                    } else if (successCnt > 0) {
+                        messageBox = new MessageBox(toolShell, SWT.ICON_WARNING | SWT.OK);
+                        messageList.add("※ ステータスが更新されているので、確認する際は再取得をお願いいたします。");
+                        messageBox.setMessage(String.join("\r\n", messageList));
+                    } else {
+                        messageBox = new MessageBox(toolShell, SWT.ICON_ERROR | SWT.OK);
+                        messageBox.setMessage(String.join("\r\n", messageList));
+                    }
+                    messageBox.setText("ステータス更新");
+                    messageBox.open();
                 } catch (InvocationTargetException e) {
                     StringWriter stringWriter = new StringWriter();
                     PrintWriter printWriter = new PrintWriter(stringWriter);
@@ -755,17 +769,30 @@ public class VulTabItem extends CTabItem implements PropertyChangeListener {
                 ProgressMonitorDialog progDialog = new PendingStatusApprovalProgressMonitorDialog(toolShell);
                 try {
                     progDialog.run(true, true, progress);
-                    ContrastJson resJson = progress.getJson();
-                    if (Boolean.valueOf(resJson.getSuccess())) {
-                        MessageBox messageBox = new MessageBox(toolShell, SWT.ICON_INFORMATION | SWT.OK);
-                        messageBox.setText("ステータス更新");
-                        List<String> messages = resJson.getMessages();
-                        messages.add("※ ステータスが更新されているので、確認する際は再取得をお願いいたします。");
-                        messageBox.setMessage(String.join("\r\n", messages));
-                        messageBox.open();
-                    } else {
-
+                    List<PendingStatusApprovalJson> resJsonList = progress.getJsonList();
+                    int successCnt = 0;
+                    List<String> messageList = new ArrayList<String>();
+                    for (PendingStatusApprovalJson contrastJson : resJsonList) {
+                        if (Boolean.valueOf(contrastJson.getSuccess())) {
+                            successCnt++;
+                        }
+                        messageList.addAll(contrastJson.getMessages());
                     }
+                    MessageBox messageBox = null;
+                    if (resJsonList.size() == successCnt) {
+                        messageBox = new MessageBox(toolShell, SWT.ICON_INFORMATION | SWT.OK);
+                        messageList.add("※ ステータスが更新されているので、確認する際は再取得をお願いいたします。");
+                        messageBox.setMessage(String.join("\r\n", messageList));
+                    } else if (successCnt > 0) {
+                        messageBox = new MessageBox(toolShell, SWT.ICON_WARNING | SWT.OK);
+                        messageList.add("※ ステータスが更新されているので、確認する際は再取得をお願いいたします。");
+                        messageBox.setMessage(String.join("\r\n", messageList));
+                    } else {
+                        messageBox = new MessageBox(toolShell, SWT.ICON_ERROR | SWT.OK);
+                        messageBox.setMessage(String.join("\r\n", messageList));
+                    }
+                    messageBox.setText("保留中ステータスの承認");
+                    messageBox.open();
                 } catch (InvocationTargetException e) {
                     StringWriter stringWriter = new StringWriter();
                     PrintWriter printWriter = new PrintWriter(stringWriter);
@@ -817,17 +844,30 @@ public class VulTabItem extends CTabItem implements PropertyChangeListener {
                 ProgressMonitorDialog progDialog = new PendingStatusApprovalProgressMonitorDialog(toolShell);
                 try {
                     progDialog.run(true, true, progress);
-                    ContrastJson resJson = progress.getJson();
-                    if (Boolean.valueOf(resJson.getSuccess())) {
-                        MessageBox messageBox = new MessageBox(toolShell, SWT.ICON_INFORMATION | SWT.OK);
-                        messageBox.setText("ステータス更新");
-                        List<String> messages = resJson.getMessages();
-                        messages.add("※ ステータスが更新されているので、確認する際は再取得をお願いいたします。");
-                        messageBox.setMessage(String.join("\r\n", messages));
-                        messageBox.open();
-                    } else {
-
+                    List<PendingStatusApprovalJson> resJsonList = progress.getJsonList();
+                    int successCnt = 0;
+                    List<String> messageList = new ArrayList<String>();
+                    for (PendingStatusApprovalJson contrastJson : resJsonList) {
+                        if (Boolean.valueOf(contrastJson.getSuccess())) {
+                            successCnt++;
+                        }
+                        messageList.addAll(contrastJson.getMessages());
                     }
+                    MessageBox messageBox = null;
+                    if (resJsonList.size() == successCnt) {
+                        messageBox = new MessageBox(toolShell, SWT.ICON_INFORMATION | SWT.OK);
+                        messageList.add("※ ステータスが更新されているので、確認する際は再取得をお願いいたします。");
+                        messageBox.setMessage(String.join("\r\n", messageList));
+                    } else if (successCnt > 0) {
+                        messageBox = new MessageBox(toolShell, SWT.ICON_WARNING | SWT.OK);
+                        messageList.add("※ ステータスが更新されているので、確認する際は再取得をお願いいたします。");
+                        messageBox.setMessage(String.join("\r\n", messageList));
+                    } else {
+                        messageBox = new MessageBox(toolShell, SWT.ICON_ERROR | SWT.OK);
+                        messageBox.setMessage(String.join("\r\n", messageList));
+                    }
+                    messageBox.setText("保留中ステータスの拒否");
+                    messageBox.open();
                 } catch (InvocationTargetException e) {
                     StringWriter stringWriter = new StringWriter();
                     PrintWriter printWriter = new PrintWriter(stringWriter);
