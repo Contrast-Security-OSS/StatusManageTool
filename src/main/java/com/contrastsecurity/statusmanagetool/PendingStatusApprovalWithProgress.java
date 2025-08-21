@@ -24,6 +24,7 @@
 package com.contrastsecurity.statusmanagetool;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -72,6 +73,7 @@ public class PendingStatusApprovalWithProgress implements IRunnableWithProgress 
     public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
         SubMonitor subMonitor = SubMonitor.convert(monitor).setWorkRemaining(this.targetMap.size());
         monitor.setTaskName(this.approved ? "保留中の脆弱性ステータスを承認しています..." : "保留中の脆弱性ステータスを拒否しています...");
+        this.jsonList = new ArrayList<PendingStatusApprovalJson>();
         for (Map.Entry<Organization, List<ItemForVulnerability>> entry : this.targetMap.entrySet()) {
             Organization org = entry.getKey();
             List<ItemForVulnerability> vulns = entry.getValue();
