@@ -45,6 +45,7 @@ import org.eclipse.swt.widgets.Text;
 import com.contrastsecurity.statusmanagetool.VulnStatusManageToolShell;
 import com.contrastsecurity.statusmanagetool.api.Api;
 import com.contrastsecurity.statusmanagetool.api.OrganizationApi;
+import com.contrastsecurity.statusmanagetool.api.OrganizationForBasicApi;
 import com.contrastsecurity.statusmanagetool.exception.ApiException;
 import com.contrastsecurity.statusmanagetool.exception.NonApiException;
 import com.contrastsecurity.statusmanagetool.model.Organization;
@@ -143,7 +144,12 @@ public class OrganizationDialog extends Dialog {
         org.setApikey(apiKeyTxt.getText().trim());
         org.setOrganization_uuid(orgIdTxt.getText().trim());
         org.setValid(true);
-        Api orgApi = new OrganizationApi(this.shell, this.ps, org, url, usr, svc);
+        Api orgApi = null;
+        if (svc == null) {
+            orgApi = new OrganizationForBasicApi(this.shell, this.ps, org, url, usr);
+        } else {
+            orgApi = new OrganizationApi(this.shell, this.ps, org, url, usr, svc);
+        }
         try {
             Organization rtnOrg = (Organization) orgApi.get();
             if (rtnOrg == null) {

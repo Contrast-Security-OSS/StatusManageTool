@@ -54,7 +54,10 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
+import org.jasypt.util.text.BasicTextEncryptor;
 
+import com.contrastsecurity.statusmanagetool.Main;
+import com.contrastsecurity.statusmanagetool.Main.AuthType;
 import com.contrastsecurity.statusmanagetool.ProxyAuthDialog;
 import com.contrastsecurity.statusmanagetool.VulnStatusManageToolShell;
 import com.contrastsecurity.statusmanagetool.api.Api;
@@ -71,6 +74,9 @@ public class BasePreferencePage extends PreferencePage {
     private Text contrastUrlTxt;
     private Text userNameTxt;
     private Text serviceKeyTxt;
+    private Button passInput;
+    private Button passSave;
+    private Text passTxt;
     private Button superAdminYes;
     private Button superAdminNo;
     private Text orgIdTxt;
@@ -89,12 +95,14 @@ public class BasePreferencePage extends PreferencePage {
     private Button bulkOnBtn;
     private Button bulkOffBtn;
     private VulnStatusManageToolShell shell;
+    private AuthType authType;
 
     Logger logger = LogManager.getLogger("vulnstatusmanagetool");
 
-    public BasePreferencePage(VulnStatusManageToolShell shell) {
+    public BasePreferencePage(VulnStatusManageToolShell shell, AuthType authType) {
         super("基本設定");
         this.shell = shell;
+        this.authType = authType;
     }
 
     @Override
@@ -110,7 +118,7 @@ public class BasePreferencePage extends PreferencePage {
         composite.setLayout(compositeLt);
 
         Composite baseGrp = new Composite(composite, SWT.NONE);
-        GridLayout baseGrpLt = new GridLayout(2, false);
+        GridLayout baseGrpLt = new GridLayout(3, false);
         baseGrpLt.marginWidth = 15;
         baseGrpLt.horizontalSpacing = 10;
         baseGrp.setLayout(baseGrpLt);
@@ -118,6 +126,7 @@ public class BasePreferencePage extends PreferencePage {
         baseGrp.setLayoutData(baseGrpLtGrDt);
 
         new Label(baseGrp, SWT.LEFT).setText("Contrast URL：");
+        new Label(baseGrp, SWT.LEFT).setText("");
         contrastUrlTxt = new Text(baseGrp, SWT.BORDER);
         contrastUrlTxt.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
         contrastUrlTxt.setText(ps.getString(PreferenceConstants.CONTRAST_URL));
@@ -132,16 +141,25 @@ public class BasePreferencePage extends PreferencePage {
             public void modifyText(ModifyEvent e) {
                 String contrastUrlStr = contrastUrlTxt.getText().trim();
                 String userNameStr = userNameTxt.getText().trim();
-                String serviceKeyStr = serviceKeyTxt.getText().trim();
-                if (contrastUrlStr.isEmpty() || userNameStr.isEmpty() || serviceKeyStr.isEmpty()) {
-                    addBtn.setEnabled(false);
+                if (authType == AuthType.PASSWORD) {
+                    if (contrastUrlStr.isEmpty() || userNameStr.isEmpty()) {
+                        addBtn.setEnabled(false);
+                    } else {
+                        addBtn.setEnabled(true);
+                    }
                 } else {
-                    addBtn.setEnabled(true);
+                    String serviceKeyStr = serviceKeyTxt.getText().trim();
+                    if (contrastUrlStr.isEmpty() || userNameStr.isEmpty() || serviceKeyStr.isEmpty()) {
+                        addBtn.setEnabled(false);
+                    } else {
+                        addBtn.setEnabled(true);
+                    }
                 }
             }
         });
 
         new Label(baseGrp, SWT.LEFT).setText("Username：");
+        new Label(baseGrp, SWT.LEFT).setText("");
         userNameTxt = new Text(baseGrp, SWT.BORDER);
         userNameTxt.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
         userNameTxt.setText(ps.getString(PreferenceConstants.USERNAME));
@@ -162,38 +180,132 @@ public class BasePreferencePage extends PreferencePage {
             public void modifyText(ModifyEvent e) {
                 String contrastUrlStr = contrastUrlTxt.getText().trim();
                 String userNameStr = userNameTxt.getText().trim();
-                String serviceKeyStr = serviceKeyTxt.getText().trim();
-                if (contrastUrlStr.isEmpty() || userNameStr.isEmpty() || serviceKeyStr.isEmpty()) {
-                    addBtn.setEnabled(false);
+                if (authType == AuthType.PASSWORD) {
+                    if (contrastUrlStr.isEmpty() || userNameStr.isEmpty()) {
+                        addBtn.setEnabled(false);
+                    } else {
+                        addBtn.setEnabled(true);
+                    }
                 } else {
-                    addBtn.setEnabled(true);
+                    String serviceKeyStr = serviceKeyTxt.getText().trim();
+                    if (contrastUrlStr.isEmpty() || userNameStr.isEmpty() || serviceKeyStr.isEmpty()) {
+                        addBtn.setEnabled(false);
+                    } else {
+                        addBtn.setEnabled(true);
+                    }
                 }
             }
         });
 
-        new Label(baseGrp, SWT.LEFT).setText("Service Key：");
-        serviceKeyTxt = new Text(baseGrp, SWT.BORDER);
-        serviceKeyTxt.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-        serviceKeyTxt.setText(ps.getString(PreferenceConstants.SERVICE_KEY));
-        serviceKeyTxt.setMessage("個人のサービスキー");
-        serviceKeyTxt.addListener(SWT.FocusIn, new Listener() {
-            public void handleEvent(Event e) {
-                serviceKeyTxt.selectAll();
-            }
-        });
-        serviceKeyTxt.addModifyListener(new ModifyListener() {
-            @Override
-            public void modifyText(ModifyEvent e) {
-                String contrastUrlStr = contrastUrlTxt.getText().trim();
-                String serviceKeyStr = serviceKeyTxt.getText().trim();
-                String userNameStr = userNameTxt.getText().trim();
-                if (contrastUrlStr.isEmpty() || serviceKeyStr.isEmpty() || userNameStr.isEmpty()) {
-                    addBtn.setEnabled(false);
-                } else {
-                    addBtn.setEnabled(true);
+        if (this.authType == AuthType.PASSWORD) {
+            Label passwordLbl = new Label(baseGrp, SWT.LEFT);
+            GridData passwordLblGrDt = new GridData();
+            passwordLblGrDt.verticalAlignment = SWT.TOP;
+            passwordLbl.setLayoutData(passwordLblGrDt);
+            passwordLbl.setText("Password:");
+            new Label(baseGrp, SWT.LEFT).setText("");
+            Group passwordGrp = new Group(baseGrp, SWT.NONE);
+            GridLayout passwordGrpLt = new GridLayout(2, false);
+            passwordGrpLt.marginWidth = 15;
+            passwordGrpLt.horizontalSpacing = 10;
+            passwordGrp.setLayout(passwordGrpLt);
+            GridData passwordGrpGrDt = new GridData(GridData.FILL_HORIZONTAL);
+            passwordGrp.setLayoutData(passwordGrpGrDt);
+            // ========== Save or Input ========== //
+            Composite passInputTypeGrp = new Composite(passwordGrp, SWT.NONE);
+            GridLayout passInputTypeGrpLt = new GridLayout(1, false);
+            passInputTypeGrpLt.marginWidth = 0;
+            passInputTypeGrpLt.marginBottom = -5;
+            passInputTypeGrpLt.verticalSpacing = 10;
+            passInputTypeGrp.setLayout(passInputTypeGrpLt);
+            GridData passInputTypeGrpGrDt = new GridData();
+            passInputTypeGrpGrDt.horizontalSpan = 2;
+            passInputTypeGrp.setLayoutData(passInputTypeGrpGrDt);
+
+            passInput = new Button(passInputTypeGrp, SWT.RADIO);
+            passInput.setText("都度、パスワードを入力する（ツールを終了すると消えます）");
+            passInput.addSelectionListener(new SelectionAdapter() {
+                @Override
+                public void widgetSelected(SelectionEvent e) {
+                    Button source = (Button) e.getSource();
+                    if (source.getSelection()) {
+                        passTxt.setText("");
+                        passTxt.setEnabled(false);
+                    }
+                }
+
+            });
+
+            passSave = new Button(passInputTypeGrp, SWT.RADIO);
+            passSave.setText("パスワードを保存する（パスワードは暗号化されます）");
+            passSave.addSelectionListener(new SelectionAdapter() {
+                @Override
+                public void widgetSelected(SelectionEvent e) {
+                    Button source = (Button) e.getSource();
+                    if (source.getSelection()) {
+                        passTxt.setEnabled(true);
+                    }
+                }
+
+            });
+
+            Composite passTxtGrp = new Composite(passwordGrp, SWT.NONE);
+            GridLayout passTxtGrpLt = new GridLayout(2, false);
+            passTxtGrpLt.marginTop = -5;
+            passTxtGrpLt.marginLeft = 12;
+            passTxtGrp.setLayout(passTxtGrpLt);
+            GridData passTxtGrpGrDt = new GridData(GridData.FILL_HORIZONTAL);
+            passTxtGrp.setLayoutData(passTxtGrpGrDt);
+            // ========== パスワード ========== //
+            passTxt = new Text(passTxtGrp, SWT.BORDER);
+            passTxt.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+            passTxt.setEchoChar('*');
+            passTxt.addListener(SWT.FocusIn, new Listener() {
+                public void handleEvent(Event e) {
+                    passTxt.selectAll();
+                }
+            });
+
+            if (ps.getString(PreferenceConstants.PASS_TYPE).equals("input")) {
+                passInput.setSelection(true);
+                passTxt.setText("");
+                passTxt.setEnabled(false);
+            } else if (ps.getString(PreferenceConstants.PASS_TYPE).equals("save")) {
+                passSave.setSelection(true);
+                BasicTextEncryptor encryptor = new BasicTextEncryptor();
+                encryptor.setPassword(Main.MASTER_PASSWORD);
+                try {
+                    passTxt.setText(encryptor.decrypt(ps.getString(PreferenceConstants.PASSWORD)));
+                } catch (Exception e) {
+                    MessageDialog.openError(getShell(), "基本設定", "パスワードの復号化に失敗しました。\\r\\nパスワードの設定をやり直してください。");
+                    passTxt.setText("");
                 }
             }
-        });
+        } else {
+            new Label(baseGrp, SWT.LEFT).setText("Service Key：");
+            serviceKeyTxt = new Text(baseGrp, SWT.BORDER);
+            serviceKeyTxt.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+            serviceKeyTxt.setText(ps.getString(PreferenceConstants.SERVICE_KEY));
+            serviceKeyTxt.setMessage("個人のサービスキー");
+            serviceKeyTxt.addListener(SWT.FocusIn, new Listener() {
+                public void handleEvent(Event e) {
+                    serviceKeyTxt.selectAll();
+                }
+            });
+            serviceKeyTxt.addModifyListener(new ModifyListener() {
+                @Override
+                public void modifyText(ModifyEvent e) {
+                    String contrastUrlStr = contrastUrlTxt.getText().trim();
+                    String serviceKeyStr = serviceKeyTxt.getText().trim();
+                    String userNameStr = userNameTxt.getText().trim();
+                    if (contrastUrlStr.isEmpty() || serviceKeyStr.isEmpty() || userNameStr.isEmpty()) {
+                        addBtn.setEnabled(false);
+                    } else {
+                        addBtn.setEnabled(true);
+                    }
+                }
+            });
+        }
 
         // ========== SuperAdmin true/false ========== //
         Label superAdminLbl = new Label(baseGrp, SWT.LEFT);
@@ -205,6 +317,7 @@ public class BasePreferencePage extends PreferencePage {
         GridLayout superAdminTypeGrpGrpLt = new GridLayout(2, false);
         superAdminTypeGrp.setLayout(superAdminTypeGrpGrpLt);
         GridData superAdminTypeGrpGrDt = new GridData();
+        superAdminTypeGrpGrDt.horizontalSpan = 2;
         superAdminTypeGrp.setLayoutData(superAdminTypeGrpGrDt);
 
         superAdminYes = new Button(superAdminTypeGrp, SWT.RADIO);
@@ -398,10 +511,11 @@ public class BasePreferencePage extends PreferencePage {
         // ========== 組織テーブル ========== //
         Group orgTableGrp = new Group(comp2, SWT.NONE);
         GridLayout orgTableGrpLt = new GridLayout(2, false);
-        // orgTableGrpLt.marginWidth = 10;
+        orgTableGrpLt.marginWidth = 10;
         orgTableGrpLt.horizontalSpacing = 10;
         orgTableGrp.setLayout(orgTableGrpLt);
         GridData orgTableGrpGrDt = new GridData(GridData.FILL_BOTH);
+        orgTableGrpGrDt.horizontalSpan = 3;
         orgTableGrp.setLayoutData(orgTableGrpGrDt);
         orgTableGrp.setText("組織一覧");
 
@@ -501,10 +615,18 @@ public class BasePreferencePage extends PreferencePage {
         addBtn = new Button(orgButtonGrp, SWT.NULL);
         addBtn.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
         addBtn.setText("追加");
-        if (contrastUrlTxt.getText().trim().isEmpty() || userNameTxt.getText().trim().isEmpty() || serviceKeyTxt.getText().trim().isEmpty()) {
-            addBtn.setEnabled(false);
+        if (this.authType == AuthType.PASSWORD) {
+            if (contrastUrlTxt.getText().trim().isEmpty() || userNameTxt.getText().trim().isEmpty()) {
+                addBtn.setEnabled(false);
+            } else {
+                addBtn.setEnabled(true);
+            }
         } else {
-            addBtn.setEnabled(true);
+            if (contrastUrlTxt.getText().trim().isEmpty() || userNameTxt.getText().trim().isEmpty() || serviceKeyTxt.getText().trim().isEmpty()) {
+                addBtn.setEnabled(false);
+            } else {
+                addBtn.setEnabled(true);
+            }
         }
         addBtn.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -524,7 +646,11 @@ public class BasePreferencePage extends PreferencePage {
                     }
                 }
                 OrganizationDialog orgDialog = null;
-                orgDialog = new OrganizationDialog(shell, ps, contrastUrlTxt.getText().trim(), userNameTxt.getText().trim(), serviceKeyTxt.getText().trim());
+                if (authType == AuthType.PASSWORD) {
+                    orgDialog = new OrganizationDialog(shell, ps, contrastUrlTxt.getText().trim(), userNameTxt.getText().trim());
+                } else {
+                    orgDialog = new OrganizationDialog(shell, ps, contrastUrlTxt.getText().trim(), userNameTxt.getText().trim(), serviceKeyTxt.getText().trim());
+                }
                 int result = orgDialog.open();
                 if (IDialogConstants.OK_ID != result) {
                     return;
@@ -687,13 +813,23 @@ public class BasePreferencePage extends PreferencePage {
         List<String> errors = new ArrayList<String>();
         String url = this.contrastUrlTxt.getText().trim();
         String usr = this.userNameTxt.getText().trim();
-        String svc = this.serviceKeyTxt.getText().trim();
-        if (url.isEmpty() || usr.isEmpty() || svc.isEmpty()) {
-            if (!this.orgList.isEmpty()) {
-                errors.add("・組織一覧に設定が残っている場合、Contrast URL, Username, Service Keyはブランクにできません。\r\nこれらをブランクにする場合は組織一覧の設定をすべて削除してください。");
-                contrastUrlTxt.setText(ps.getString(PreferenceConstants.CONTRAST_URL));
-                serviceKeyTxt.setText(ps.getString(PreferenceConstants.SERVICE_KEY));
-                userNameTxt.setText(ps.getString(PreferenceConstants.USERNAME));
+        if (this.authType == AuthType.PASSWORD) {
+            if (url.isEmpty() || usr.isEmpty()) {
+                if (!this.orgList.isEmpty()) {
+                    errors.add("・組織一覧に設定が残っている場合、Contrast URL, Usernameはブランクにできません。\r\nこれらをブランクにする場合は組織一覧の設定をすべて削除してください。");
+                    contrastUrlTxt.setText(ps.getString(PreferenceConstants.CONTRAST_URL));
+                    userNameTxt.setText(ps.getString(PreferenceConstants.USERNAME));
+                }
+            }
+        } else {
+            String svc = this.serviceKeyTxt.getText().trim();
+            if (url.isEmpty() || usr.isEmpty() || svc.isEmpty()) {
+                if (!this.orgList.isEmpty()) {
+                    errors.add("・組織一覧に設定が残っている場合、Contrast URL, Username, Service Keyはブランクにできません。\r\nこれらをブランクにする場合は組織一覧の設定をすべて削除してください。");
+                    contrastUrlTxt.setText(ps.getString(PreferenceConstants.CONTRAST_URL));
+                    serviceKeyTxt.setText(ps.getString(PreferenceConstants.SERVICE_KEY));
+                    userNameTxt.setText(ps.getString(PreferenceConstants.USERNAME));
+                }
             }
         }
         ps.setValue(PreferenceConstants.CONTRAST_URL, url);
@@ -707,7 +843,24 @@ public class BasePreferencePage extends PreferencePage {
                 }
             }
         }
-        ps.setValue(PreferenceConstants.SERVICE_KEY, svc);
+        if (this.authType == AuthType.PASSWORD) {
+            if (passInput.getSelection()) {
+                ps.setValue(PreferenceConstants.PASS_TYPE, "input");
+                ps.setValue(PreferenceConstants.PASSWORD, "");
+            } else if (passSave.getSelection()) {
+                ps.setValue(PreferenceConstants.PASS_TYPE, "save");
+                if (this.passTxt.getText().isEmpty()) {
+                    errors.add("・パスワードを設定してください。");
+                } else {
+                    BasicTextEncryptor encryptor = new BasicTextEncryptor();
+                    encryptor.setPassword(Main.MASTER_PASSWORD);
+                    ps.setValue(PreferenceConstants.PASSWORD, encryptor.encrypt(this.passTxt.getText()));
+                }
+            }
+        } else {
+            String svc = this.serviceKeyTxt.getText().trim();
+            ps.setValue(PreferenceConstants.SERVICE_KEY, svc);
+        }
 
         if (superAdminYes.getSelection()) {
             ps.setValue(PreferenceConstants.IS_SUPERADMIN, "true");

@@ -27,12 +27,18 @@ public class PreferenceConstants {
     public static final String CONTRAST_URL = new String("com.contrastsecurity.vulnstatusmanagetool.contrast_url"); //$NON-NLS-1$
     public static final String USERNAME = new String("com.contrastsecurity.vulnstatusmanagetool.username"); //$NON-NLS-1$
     public static final String SERVICE_KEY = new String("com.contrastsecurity.vulnstatusmanagetool.service_key"); //$NON-NLS-1$
+    public static final String PASSWORD = new String("com.contrastsecurity.vulnstatusmanagetool.password"); //$NON-NLS-1$
+    public static final String BASIC_AUTH_STATUS = new String("com.contrastsecurity.vulnstatusmanagetool.basic_auth_status"); //$NON-NLS-1$
+    public static final String PASS_TYPE = new String("com.contrastsecurity.vulnstatusmanagetool.pass_type"); //$NON-NLS-1$
+    public static final String XSRF_TOKEN = new String("com.contrastsecurity.vulnstatusmanagetool.xsrf_token"); //$NON-NLS-1$
     public static final String API_KEY = new String("com.contrastsecurity.vulnstatusmanagetool.api_key"); //$NON-NLS-1$
     public static final String ORG_ID = new String("com.contrastsecurity.vulnstatusmanagetool.org_id"); //$NON-NLS-1$
     public static final String IS_SUPERADMIN = new String("com.contrastsecurity.vulnstatusmanagetool.is_superadmin"); //$NON-NLS-1$
     public static final String IS_CREATEGROUP = new String("com.contrastsecurity.vulnstatusmanagetool.is_creategroup"); //$NON-NLS-1$
     public static final String GROUP_NAME = new String("com.contrastsecurity.vulnstatusmanagetool.group_name"); //$NON-NLS-1$
     public static final String TARGET_ORGS = new String("com.contrastsecurity.vulnstatusmanagetool.target_orgs"); //$NON-NLS-1$
+    public static final String TSV_STATUS = new String("com.contrastsecurity.vulnstatusmanagetool.tsv_status"); //$NON-NLS-1$
+    public static final String AUTH_RETRY_MAX = new String("com.contrastsecurity.vulnstatusmanagetool.auth_retry_max"); //$NON-NLS-1$
 
     public static final String PROXY_YUKO = new String("com.contrastsecurity.vulnstatusmanagetool.proxy_yuko"); //$NON-NLS-1$
     public static final String PROXY_HOST = new String("com.contrastsecurity.vulnstatusmanagetool.proxy_host"); //$NON-NLS-1$
@@ -45,6 +51,11 @@ public class PreferenceConstants {
     public static final String IGNORE_SSLCERT_CHECK = new String("com.contrastsecurity.vulnstatusmanagetool.ignore_sslcert_check"); //$NON-NLS-1$
     public static final String CONNECTION_TIMEOUT = new String("com.contrastsecurity.vulnstatusmanagetool.connection_timeout"); //$NON-NLS-1$
     public static final String SOCKET_TIMEOUT = new String("com.contrastsecurity.vulnstatusmanagetool.socket_timeout"); //$NON-NLS-1$
+    public static final String AUTO_RELOGIN_INTERVAL = new String("com.contrastsecurity.vulnstatusmanagetool.auto_relogin_interval"); //$NON-NLS-1$
+
+    public static final String RETRY_METHOD = new String("com.contrastsecurity.vulnstatusmanagetool.retry_method"); //$NON-NLS-1$
+    public static final String MAX_RETRIES = new String("com.contrastsecurity.vulnstatusmanagetool.max_retries"); //$NON-NLS-1$
+    public static final String RETRY_INTERVAL = new String("com.contrastsecurity.vulnstatusmanagetool.retry_interval"); //$NON-NLS-1$
 
     public static final String VULN_CHOICE = new String("com.contrastsecurity.vulnstatusmanagetool.vuln_choice"); //$NON-NLS-1$
     public static final String DETECT_CHOICE = new String("com.contrastsecurity.vulnstatusmanagetool.detect_choice"); //$NON-NLS-1$

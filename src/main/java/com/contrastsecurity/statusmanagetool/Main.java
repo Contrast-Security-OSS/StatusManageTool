@@ -30,7 +30,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.exec.OS;
@@ -58,6 +60,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 
+import com.contrastsecurity.statusmanagetool.api.Api;
+import com.contrastsecurity.statusmanagetool.api.LogoutApi;
 import com.contrastsecurity.statusmanagetool.model.Organization;
 import com.contrastsecurity.statusmanagetool.preference.AboutPage;
 import com.contrastsecurity.statusmanagetool.preference.BasePreferencePage;
@@ -68,6 +72,8 @@ import com.contrastsecurity.statusmanagetool.preference.PreferenceConstants;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
+
+import okhttp3.CookieJar;
 
 public class Main implements PropertyChangeListener {
 
@@ -90,6 +96,7 @@ public class Main implements PropertyChangeListener {
     private CTabFolder mainTabFolder;
 
     private Button settingBtn;
+    private Button logOutBtn;
 
     private Label statusBar;
 
@@ -97,16 +104,40 @@ public class Main implements PropertyChangeListener {
     private List<Organization> orgsForSuperAdminOpe;
 
     private PropertyChangeSupport support = new PropertyChangeSupport(this);
+    private CookieJar cookieJar;
+
+    public enum AuthType {
+        TOKEN,
+        PASSWORD
+    }
 
     Logger logger = LogManager.getLogger("vulnstatusmanagetool");
+
+    private AuthType authType;
 
     /**
      * @param args
      */
     public static void main(String[] args) {
         Main main = new Main();
+        main.authType = AuthType.TOKEN;
+        if (System.getProperty("auth") != null && System.getProperty("auth").equals("password")) {
+            main.authType = AuthType.PASSWORD;
+        }
         main.initialize();
         main.createPart();
+    }
+
+    public AuthType getAuthType() {
+        return authType;
+    }
+
+    public void setCookieJar(CookieJar cookieJar) {
+        this.cookieJar = cookieJar;
+    }
+
+    public CookieJar getCookieJar() {
+        return this.cookieJar;
     }
 
     private void initialize() {
@@ -130,9 +161,14 @@ public class Main implements PropertyChangeListener {
             this.ps.setDefault(PreferenceConstants.IS_SUPERADMIN, "false");
             this.ps.setDefault(PreferenceConstants.IS_CREATEGROUP, "false");
             this.ps.setDefault(PreferenceConstants.GROUP_NAME, "StatusManageToolGroup");
+            this.ps.setDefault(PreferenceConstants.BASIC_AUTH_STATUS, BasicAuthStatusEnum.NONE.name());
+            this.ps.setDefault(PreferenceConstants.PASS_TYPE, "input");
+            this.ps.setDefault(PreferenceConstants.TSV_STATUS, TsvStatusEnum.NONE.name());
             this.ps.setDefault(PreferenceConstants.PROXY_AUTH, "none");
             this.ps.setDefault(PreferenceConstants.CONNECTION_TIMEOUT, 3000);
             this.ps.setDefault(PreferenceConstants.SOCKET_TIMEOUT, 3000);
+            this.ps.setDefault(PreferenceConstants.AUTO_RELOGIN_INTERVAL, 105);
+            this.ps.setDefault(PreferenceConstants.AUTH_RETRY_MAX, 3);
 
             this.ps.setDefault(PreferenceConstants.VULN_CHOICE, VulnTypeEnum.ALL.name());
             this.ps.setDefault(PreferenceConstants.DETECT_CHOICE, "FIRST");
@@ -141,6 +177,9 @@ public class Main implements PropertyChangeListener {
             this.ps.setDefault(PreferenceConstants.TRACE_DETECTED_DATE_FILTER, 0);
 
             this.ps.setDefault(PreferenceConstants.OPENED_MAIN_TAB_IDX, 0);
+            if (this.authType == AuthType.PASSWORD) {
+                this.ps.setValue(PreferenceConstants.SERVICE_KEY, "");
+            }
         } catch (Exception e) {
             // e.printStackTrace();
         }
@@ -197,6 +236,16 @@ public class Main implements PropertyChangeListener {
                 boolean ngRequiredFields = false;
                 String url = ps.getString(PreferenceConstants.CONTRAST_URL);
                 String usr = ps.getString(PreferenceConstants.USERNAME);
+                if (authType == AuthType.PASSWORD) {
+                    if (url.isEmpty() || usr.isEmpty()) {
+                        ngRequiredFields = true;
+                    }
+                } else {
+                    String svc = ps.getString(PreferenceConstants.SERVICE_KEY);
+                    if (url.isEmpty() || usr.isEmpty() || svc.isEmpty()) {
+                        ngRequiredFields = true;
+                    }
+                }
                 boolean isSuperAdmin = ps.getBoolean(PreferenceConstants.IS_SUPERADMIN);
                 String svc = ps.getString(PreferenceConstants.SERVICE_KEY);
                 if (isSuperAdmin) {
@@ -261,6 +310,11 @@ public class Main implements PropertyChangeListener {
 
         Composite bottomBtnGrp = new Composite(shell, SWT.NONE);
         GridLayout bottomBtnGrpLt = new GridLayout();
+        if (this.authType == AuthType.PASSWORD) {
+            bottomBtnGrpLt.numColumns = 2;
+        } else {
+            bottomBtnGrpLt.numColumns = 1;
+        }
         bottomBtnGrpLt.numColumns = 1;
         bottomBtnGrpLt.makeColumnsEqualWidth = false;
         bottomBtnGrpLt.marginHeight = 0;
@@ -277,8 +331,8 @@ public class Main implements PropertyChangeListener {
             @Override
             public void widgetSelected(SelectionEvent event) {
                 PreferenceManager mgr = new PreferenceManager();
-                PreferenceNode baseNode = new PreferenceNode("base", new BasePreferencePage(shell));
-                PreferenceNode connectionNode = new PreferenceNode("connection", new ConnectionPreferencePage());
+                PreferenceNode baseNode = new PreferenceNode("base", new BasePreferencePage(shell, authType));
+                PreferenceNode connectionNode = new PreferenceNode("connection", new ConnectionPreferencePage(authType));
                 PreferenceNode otherNode = new PreferenceNode("other", new OtherPreferencePage());
                 mgr.addToRoot(baseNode);
                 mgr.addToRoot(connectionNode);
@@ -295,6 +349,21 @@ public class Main implements PropertyChangeListener {
                 }
             }
         });
+
+        // ========== ログアウトボタン ==========
+        if (this.authType == AuthType.PASSWORD) {
+            this.logOutBtn = new Button(bottomBtnGrp, SWT.PUSH);
+            this.logOutBtn.setLayoutData(new GridData());
+            this.logOutBtn.setText(Messages.getString("main.logout.button.title")); //$NON-NLS-1$
+            this.logOutBtn.setToolTipText(Messages.getString("main.logout.button.tooltip")); //$NON-NLS-1$
+            this.logOutBtn.setEnabled(false);
+            this.logOutBtn.addSelectionListener(new SelectionAdapter() {
+                @Override
+                public void widgetSelected(SelectionEvent event) {
+                    logOut();
+                }
+            });
+        }
 
         this.statusBar = new Label(shell, SWT.RIGHT);
         GridData statusBarGrDt = new GridData(GridData.FILL_HORIZONTAL);
@@ -330,8 +399,59 @@ public class Main implements PropertyChangeListener {
         display.dispose();
     }
 
+    public void loggedIn() {
+        String timestamp = new SimpleDateFormat("yyyy/MM/dd HH:mm").format(new Date()); //$NON-NLS-1$
+        String userName = ps.getString(PreferenceConstants.USERNAME);
+        this.statusBar.setText(String.format("%s %s successfully logged in", userName, timestamp)); //$NON-NLS-1$
+        this.logOutBtn.setEnabled(true);
+    }
+
+    public void logOut() {
+        Api logoutApi = new LogoutApi(shell, ps, getValidOrganization());
+        try {
+            logoutApi.getWithoutCheckTsv();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        loggedOut();
+    }
+
+    public void loggedOut() {
+        this.cookieJar = null;
+        this.statusBar.setText(""); //$NON-NLS-1$
+        ps.setValue(PreferenceConstants.XSRF_TOKEN, ""); //$NON-NLS-1$
+        ps.setValue(PreferenceConstants.BASIC_AUTH_STATUS, BasicAuthStatusEnum.NONE.name());
+        ps.setValue(PreferenceConstants.TSV_STATUS, TsvStatusEnum.NONE.name());
+        logOutBtn.setEnabled(false);
+    }
+
     public void setOrgsForSuperAdminOpe(List<Organization> orgsForSuperAdminOpe) {
         this.orgsForSuperAdminOpe = orgsForSuperAdminOpe;
+    }
+
+    public Organization getValidOrganization() {
+        if (ps.getBoolean(PreferenceConstants.IS_SUPERADMIN)) {
+            Organization orgForSuperAdmin = new Organization();
+            orgForSuperAdmin.setName("SuperAdmin");
+            orgForSuperAdmin.setOrganization_uuid(this.ps.getString(PreferenceConstants.ORG_ID));
+            orgForSuperAdmin.setApikey(this.ps.getString(PreferenceConstants.API_KEY));
+            return orgForSuperAdmin;
+        }
+        String orgJsonStr = ps.getString(PreferenceConstants.TARGET_ORGS);
+        if (orgJsonStr.trim().length() > 0) {
+            try {
+                List<Organization> orgList = new Gson().fromJson(orgJsonStr, new TypeToken<List<Organization>>() {
+                }.getType());
+                for (Organization org : orgList) {
+                    if (org != null && org.isValid()) {
+                        return org;
+                    }
+                }
+            } catch (JsonSyntaxException e) {
+                return null;
+            }
+        }
+        return null;
     }
 
     public List<Organization> getValidOrganizations() {
