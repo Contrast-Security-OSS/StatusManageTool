@@ -1,17 +1,16 @@
 /*
  * MIT License
- * Copyright (c) 2015-2019 Tabocom
- *
+ * Copyright (c) 2025 Contrast Security Japan G.K.
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
+ * 
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- *
+ * 
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -19,6 +18,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
+ * 
  */
 
 package com.contrastsecurity.statusmanagetool;
@@ -47,7 +47,7 @@ import org.eclipse.swt.widgets.Text;
 
 public class TsvDialog extends Dialog {
 
-    public static String ACCEPTABLE_CODE_CHAR = "0123456789"; //$NON-NLS-1$
+    public static String ACCEPTABLE_CODE_CHAR = "0123456789";
 
     private Text codeTxt;
     private String code;
@@ -64,7 +64,7 @@ public class TsvDialog extends Dialog {
         Composite composite = (Composite) super.createDialogArea(parent);
         composite.setLayout(new GridLayout(2, false));
 
-        new Label(composite, SWT.LEFT).setText(Messages.getString("tsvdialog.verification.code.label")); //$NON-NLS-1$
+        new Label(composite, SWT.LEFT).setText("6桁の認証コード:");
         codeTxt = new Text(composite, SWT.BORDER);
         codeTxt.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
         codeTxt.setTextLimit(6);
@@ -102,7 +102,7 @@ public class TsvDialog extends Dialog {
         Label messageLbl = new Label(composite, SWT.LEFT);
         messageLbl.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
         if (retryCnt > 0) {
-            messageLbl.setText(Messages.getString("tsvdialog.authentication.fail.message")); //$NON-NLS-1$
+            messageLbl.setText("認証に失敗しました。");
             messageLbl.setForeground(getShell().getDisplay().getSystemColor(SWT.COLOR_RED));
         }
         codeTxt.setFocus();
@@ -114,7 +114,7 @@ public class TsvDialog extends Dialog {
     protected void createButtonsForButtonBar(Composite parent) {
         Button okButton = createButton(parent, IDialogConstants.OK_ID, IDialogConstants.OK_LABEL, true);
         okButton.setEnabled(false);
-        createButton(parent, IDialogConstants.CANCEL_ID, Messages.getString("tsvdialog.cancel.button.title"), false); //$NON-NLS-1$
+        createButton(parent, IDialogConstants.CANCEL_ID, "キャンセル", false);
     }
 
     @Override
@@ -140,7 +140,7 @@ public class TsvDialog extends Dialog {
     @Override
     protected void configureShell(Shell newShell) {
         super.configureShell(newShell);
-        newShell.setText(Messages.getString("tsvdialog.title")); //$NON-NLS-1$
+        newShell.setText("二段階認証");
     }
 
     public void addPropertyChangeListener(PropertyChangeListener listener) {

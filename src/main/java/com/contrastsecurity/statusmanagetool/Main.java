@@ -221,8 +221,11 @@ public class Main implements PropertyChangeListener {
                 ps.setValue(PreferenceConstants.OPENED_MAIN_TAB_IDX, main_idx);
                 ps.setValue(PreferenceConstants.MEM_WIDTH, shell.getSize().x);
                 ps.setValue(PreferenceConstants.MEM_HEIGHT, shell.getSize().y);
+                ps.setValue(PreferenceConstants.BASIC_AUTH_STATUS, "");
+                ps.setValue(PreferenceConstants.XSRF_TOKEN, "");
                 ps.setValue(PreferenceConstants.PROXY_TMP_USER, "");
                 ps.setValue(PreferenceConstants.PROXY_TMP_PASS, "");
+                ps.setValue(PreferenceConstants.TSV_STATUS, "");
                 support.firePropertyChange("shellClosed", null, null);
                 try {
                     ps.save();
@@ -254,8 +257,14 @@ public class Main implements PropertyChangeListener {
                         ngRequiredFields = true;
                     }
                 } else {
-                    if (url.isEmpty() || usr.isEmpty() || svc.isEmpty()) {
-                        ngRequiredFields = true;
+                    if (authType == AuthType.PASSWORD) {
+                        if (url.isEmpty() || usr.isEmpty()) {
+                            ngRequiredFields = true;
+                        }
+                    } else {
+                        if (url.isEmpty() || usr.isEmpty() || svc.isEmpty()) {
+                            ngRequiredFields = true;
+                        }
                     }
                 }
                 List<Organization> orgs = getValidOrganizations();

@@ -58,7 +58,6 @@ import org.jasypt.util.text.BasicTextEncryptor;
 import com.contrastsecurity.statusmanagetool.BasicAuthStatusEnum;
 import com.contrastsecurity.statusmanagetool.Main;
 import com.contrastsecurity.statusmanagetool.Main.AuthType;
-import com.contrastsecurity.statusmanagetool.Messages;
 import com.contrastsecurity.statusmanagetool.PasswordDialog;
 import com.contrastsecurity.statusmanagetool.TsvDialog;
 import com.contrastsecurity.statusmanagetool.TsvStatusEnum;
@@ -157,7 +156,7 @@ public abstract class Api {
         }
 
         boolean isNeedPassInput = false;
-        if (this.ps.getString(PreferenceConstants.PASS_TYPE).equals("input")) { //$NON-NLS-1$
+        if (this.ps.getString(PreferenceConstants.PASS_TYPE).equals("input")) {
             if (this.ps.getString(PreferenceConstants.PASSWORD).isEmpty()) {
                 isNeedPassInput = true;
             }
@@ -168,7 +167,7 @@ public abstract class Api {
                 this.pass = encryptor.decrypt(this.ps.getString(PreferenceConstants.PASSWORD));
             } catch (Exception e) {
                 e.printStackTrace();
-                throw new BasicAuthException(Messages.getString("api.password.decrypt.error")); //$NON-NLS-1$
+                throw new BasicAuthException("パスワードの復号化に失敗しました。\r\nパスワードの設定をやり直してください。");
             }
         }
         if (isNeedPassInput) {
@@ -178,30 +177,30 @@ public abstract class Api {
                 public void run() {
                     int result = passwordDialog.open();
                     if (IDialogConstants.OK_ID != result) {
-                        pass = ""; //$NON-NLS-1$
+                        pass = "";
                     }
                     pass = passwordDialog.getPass();
                     if (pass == null) {
-                        pass = ""; //$NON-NLS-1$
+                        pass = "";
                     }
                 }
             });
         }
         if (this.pass.isEmpty()) {
-            throw new BasicAuthCancelException(Messages.getString("api.authentication.canceled")); //$NON-NLS-1$
+            throw new BasicAuthCancelException("認証をキャンセルしました。");
         }
 
         try {
             Api passwordAuthApi = new PasswordAuthApi(this.shell, this.ps, this.org, this.contrastUrl, this.userName, this.pass);
             String success = (String) passwordAuthApi.postWithoutCheckTsv();
             if (!Boolean.valueOf(success)) {
-                throw new BasicAuthFailureException(Messages.getString("api.authentication.failed")); //$NON-NLS-1$
+                throw new BasicAuthFailureException("認証に失敗しました。\r\nUsername, Passwordが正しいか再度ご確認ください。");
             }
             CookieJar cookieJar = ((VulnStatusManageToolShell) this.shell).getMain().getCookieJar();
             List<Cookie> cookies = cookieJar.loadForRequest(HttpUrl.parse(ps.getString(PreferenceConstants.CONTRAST_URL)));
             String xsrf_token = null;
             for (Cookie c : cookies) {
-                if (c.name().equals("XSRF-TOKEN")) { //$NON-NLS-1$
+                if (c.name().equals("XSRF-TOKEN")) {
                     xsrf_token = c.value();
                     this.ps.setValue(PreferenceConstants.XSRF_TOKEN, xsrf_token);
                     this.ps.setValue(PreferenceConstants.BASIC_AUTH_STATUS, BasicAuthStatusEnum.AUTH.name());
@@ -225,9 +224,9 @@ public abstract class Api {
             String trace = stringWriter.toString();
             logger.error(trace);
             if (e instanceof UnknownHostException) {
-                throw new BasicAuthException(String.format("%s\r\n%s", Messages.getString("api.not.found.host"), e.getMessage())); //$NON-NLS-1$ //$NON-NLS-2$
+                throw new BasicAuthException(String.format("%s\r\n%s", "ホストが見つかりません。", e.getMessage()));
             }
-            throw new BasicAuthException(String.format("%s\r\n%s", e.getMessage(), Messages.getString("api.make.sure.logfile.about.error"))); //$NON-NLS-1$ //$NON-NLS-2$
+            throw new BasicAuthException(String.format("%s\r\n%s", e.getMessage(), "エラーの詳細はログファイルでご確認ください。"));
         }
     }
 
@@ -274,12 +273,11 @@ public abstract class Api {
                 return ts;
             }
         } catch (ApiException e) {
-            throw new TsvException(String.format("%s\r\n%s", Messages.getString("api.teamserver.return.error"), e.getMessage())); //$NON-NLS-1$ //$NON-NLS-2$
+            throw new TsvException(String.format("%s\r\n%s", "TeamServerからエラーが返されました。", e.getMessage()));
         } catch (NonApiException e) {
-            throw new TsvException(
-                    String.format("%s %s\r\n%s", Messages.getString("api.unexpected.status.code.error"), e.getMessage(), Messages.getString("api.make.sure.logfile"))); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+            throw new TsvException(String.format("%s %s\r\n%s", "想定外のステータスコード:", e.getMessage(), "ログファイルをご確認ください。"));
         } catch (Exception e) {
-            throw new TsvException(String.format("%s\r\n%s", Messages.getString("api.message.dialog.unknown.error"), e.getMessage())); //$NON-NLS-1$ //$NON-NLS-2$
+            throw new TsvException(String.format("%s\r\n%s", "不明なエラーです。ログファイルをご確認ください。", e.getMessage()));
         }
         return null;
     }
@@ -297,9 +295,9 @@ public abstract class Api {
                 this.ps.setValue(PreferenceConstants.TSV_STATUS, TsvStatusEnum.SKIP.name());
             } else {
                 if (tsvSetting.getTsv_type() == null) {
-                    throw new TsvException(Messages.getString("api.tsv.method.get.error")); //$NON-NLS-1$
+                    throw new TsvException("二段階認証コードの通知方法の取得に失敗しました。\r\n二段階認証の設定に問題がないかご確認ください。");
                 }
-                if (tsvSetting.getTsv_type().equals("EMAIL")) { //$NON-NLS-1$
+                if (tsvSetting.getTsv_type().equals("EMAIL")) {
                     Api tsvInitializeApi = null;
                     if (((VulnStatusManageToolShell) this.shell).getMain().getAuthType() == AuthType.PASSWORD) {
                         tsvInitializeApi = new TsvInitializeApi(this.shell, this.ps, this.org, this.contrastUrl, this.userName);
@@ -307,8 +305,8 @@ public abstract class Api {
                         tsvInitializeApi = new TsvInitializeApi(this.shell, this.ps, this.org, this.contrastUrl, this.userName, this.serviceKey);
                     }
                     String rtnMsg = (String) tsvInitializeApi.postWithoutCheckTsv();
-                    if (!rtnMsg.equals("true")) { //$NON-NLS-1$
-                        throw new TsvException(Messages.getString("api.tsv.code.request.error")); //$NON-NLS-1$
+                    if (!rtnMsg.equals("true")) {
+                        throw new TsvException("二段階認証コードのメール送信要求に失敗しました。");
                     }
                 }
                 TsvDialog tsvDialog = new TsvDialog(shell, retryCnt);
@@ -317,11 +315,11 @@ public abstract class Api {
                     public void run() {
                         int result = tsvDialog.open();
                         if (IDialogConstants.OK_ID != result) {
-                            code = ""; //$NON-NLS-1$
+                            code = "";
                         }
                         code = tsvDialog.getCode();
                         if (code == null) {
-                            code = ""; //$NON-NLS-1$
+                            code = "";
                         }
                     }
                 });
@@ -330,18 +328,18 @@ public abstract class Api {
                     tsvAuthorizeApi.setIgnoreStatusCodes(new ArrayList(Arrays.asList(400)));
                     try {
                         String rtnMsg = (String) tsvAuthorizeApi.postWithoutCheckTsv();
-                        if (rtnMsg.equals("true")) { //$NON-NLS-1$
+                        if (rtnMsg.equals("true")) {
                             this.ps.setValue(PreferenceConstants.TSV_STATUS, TsvStatusEnum.AUTH.name());
                         } else {
-                            throw new TsvFailureException(Messages.getString("api.tsv.failed")); //$NON-NLS-1$
+                            throw new TsvFailureException("二段階認証に失敗しました。");
                         }
                     } catch (NonApiException nae) {
-                        if (nae.getMessage().equals("400")) { //$NON-NLS-1$
-                            throw new TsvException(Messages.getString("api.tsv.failed")); //$NON-NLS-1$
+                        if (nae.getMessage().equals("400")) {
+                            throw new TsvException("二段階認証に失敗しました。");
                         }
                     }
                 } else {
-                    throw new TsvCancelException(Messages.getString("api.tsv.canceled")); //$NON-NLS-1$
+                    throw new TsvCancelException("二段階認証をキャンセルしました。");
                 }
             }
         }
@@ -573,16 +571,16 @@ public abstract class Api {
             if (this.ps.getBoolean(PreferenceConstants.PROXY_YUKO)) {
                 clientBuilder.proxy(new Proxy(Proxy.Type.HTTP,
                         new InetSocketAddress(this.ps.getString(PreferenceConstants.PROXY_HOST), Integer.parseInt(this.ps.getString(PreferenceConstants.PROXY_PORT)))));
-                if (!this.ps.getString(PreferenceConstants.PROXY_AUTH).equals("none")) { //$NON-NLS-1$
+                if (!this.ps.getString(PreferenceConstants.PROXY_AUTH).equals("none")) {
                     Authenticator proxyAuthenticator = null;
                     // プロキシ認証あり
-                    if (this.ps.getString(PreferenceConstants.PROXY_AUTH).equals("input")) { //$NON-NLS-1$
+                    if (this.ps.getString(PreferenceConstants.PROXY_AUTH).equals("input")) {
                         proxyAuthenticator = new Authenticator() {
 
                             @Override
                             public Request authenticate(Route route, Response response) throws IOException {
                                 String credential = Credentials.basic(ps.getString(PreferenceConstants.PROXY_TMP_USER), ps.getString(PreferenceConstants.PROXY_TMP_PASS));
-                                return response.request().newBuilder().header("Proxy-Authorization", credential).build(); //$NON-NLS-1$
+                                return response.request().newBuilder().header("Proxy-Authorization", credential).build();
                             }
                         };
                     } else {
@@ -595,11 +593,11 @@ public abstract class Api {
                                 @Override
                                 public Request authenticate(Route route, Response response) throws IOException {
                                     String credential = Credentials.basic(ps.getString(PreferenceConstants.PROXY_USER), proxy_pass);
-                                    return response.request().newBuilder().header("Proxy-Authorization", credential).build(); //$NON-NLS-1$
+                                    return response.request().newBuilder().header("Proxy-Authorization", credential).build();
                                 }
                             };
                         } catch (Exception e) {
-                            throw new ApiException("プロキシパスワードの復号化に失敗しました。\\r\\nパスワードの設定をやり直してください。");
+                            throw new ApiException("プロキシパスワードの復号化に失敗しました。\r\nパスワードの設定をやり直してください。");
                         }
                     }
                     clientBuilder.proxyAuthenticator(proxyAuthenticator);
@@ -626,7 +624,7 @@ public abstract class Api {
                             // ps.setValue(PreferenceConstants.TSV_STATUS, TsvStatusEnum.NONE.name());
                             // ps.setValue(PreferenceConstants.BASIC_AUTH_STATUS, BasicAuthStatusEnum.NONE.name());
                             // ps.setValue(PreferenceConstants.XSRF_TOKEN, "");
-                            throw new ApiException(Messages.getString("api.required.authentication")); //$NON-NLS-1$
+                            throw new ApiException("認証が必要です。もう一度実行してください。");
                         }
                     }
                     return res;
@@ -640,7 +638,8 @@ public abstract class Api {
                         Type contrastType = new TypeToken<ContrastJson>() {
                         }.getType();
                         ContrastJson contrastJson = gson.fromJson(response.body().string(), contrastType);
-                        if (contrastJson.getSuccess().equals("false")) { //$NON-NLS-1$
+                        if (contrastJson.getSuccess().equals("false")) {
+                            System.out.println(contrastJson.getMessages());
                             if (contrastJson.getMessages().contains("Invalid CSRF token") || contrastJson.getMessages().contains("Authorization failure")) { //$NON-NLS-1$ //$NON-NLS-2$
                                 shell.getDisplay().syncExec(new Runnable() {
                                     @Override
@@ -651,11 +650,11 @@ public abstract class Api {
                                 // ps.setValue(PreferenceConstants.TSV_STATUS, TsvStatusEnum.NONE.name());
                                 // ps.setValue(PreferenceConstants.BASIC_AUTH_STATUS, BasicAuthStatusEnum.NONE.name());
                                 // ps.setValue(PreferenceConstants.XSRF_TOKEN, "");
-                                throw new ApiException(Messages.getString("api.required.authentication")); //$NON-NLS-1$
-                            } else if (contrastJson.getMessages().contains("Unable to sign in. Contact your administrator.")) { //$NON-NLS-1$
-                                throw new ApiException(Messages.getString("api.authentication.failed.maybe.blocked")); //$NON-NLS-1$
+                                throw new ApiException("認証が必要です。もう一度実行してください。");
+                            } else if (contrastJson.getMessages().contains("Unable to sign in. Contact your administrator.")) {
+                                throw new ApiException("認証に失敗しました。\r\nUsername, Passwordが正しいか再度ご確認ください。\r\nまたはアカウントがロックされているかもしれません。管理者に問い合わせてください。");
                             } else {
-                                throw new BasicAuthFailureException(Messages.getString("api.authentication.failed")); //$NON-NLS-1$
+                                throw new BasicAuthFailureException("認証に失敗しました。\r\nUsername, Passwordが正しいか再度ご確認ください。");
                             }
                         }
                     }
