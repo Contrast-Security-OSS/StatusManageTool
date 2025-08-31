@@ -315,7 +315,6 @@ public class Main implements PropertyChangeListener {
         } else {
             bottomBtnGrpLt.numColumns = 1;
         }
-        bottomBtnGrpLt.numColumns = 1;
         bottomBtnGrpLt.makeColumnsEqualWidth = false;
         bottomBtnGrpLt.marginHeight = 0;
         bottomBtnGrp.setLayout(bottomBtnGrpLt);
@@ -354,8 +353,8 @@ public class Main implements PropertyChangeListener {
         if (this.authType == AuthType.PASSWORD) {
             this.logOutBtn = new Button(bottomBtnGrp, SWT.PUSH);
             this.logOutBtn.setLayoutData(new GridData());
-            this.logOutBtn.setText(Messages.getString("main.logout.button.title")); //$NON-NLS-1$
-            this.logOutBtn.setToolTipText(Messages.getString("main.logout.button.tooltip")); //$NON-NLS-1$
+            this.logOutBtn.setText("ログアウト");
+            this.logOutBtn.setToolTipText("認証済みセッションからログアウトします。");
             this.logOutBtn.setEnabled(false);
             this.logOutBtn.addSelectionListener(new SelectionAdapter() {
                 @Override
