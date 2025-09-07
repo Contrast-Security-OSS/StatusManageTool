@@ -302,6 +302,7 @@ public class Main implements PropertyChangeListener {
                         }
                     }
                 }
+                support.firePropertyChange("shellActivated", null, false);
             }
         });
 

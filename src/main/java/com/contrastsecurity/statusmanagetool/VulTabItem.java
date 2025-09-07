@@ -115,6 +115,8 @@ public class VulTabItem extends CTabItem implements PropertyChangeListener {
         this.ps = ps;
         setText("脆弱性");
 
+        this.traceDetectedFilterMap = getTraceDetectedDateMap();
+
         Composite shell = new Composite(mainTabFolder, SWT.NONE);
         shell.setLayout(new GridLayout(1, false));
 
@@ -998,7 +1000,6 @@ public class VulTabItem extends CTabItem implements PropertyChangeListener {
     }
 
     private void updateTermFilterOption() {
-        this.traceDetectedFilterMap = getTraceDetectedDateMap();
         traceTermToday.setToolTipText(sdf.format(this.traceDetectedFilterMap.get(TraceDetectedDateFilterEnum.TODAY)));
         traceTermYesterday.setToolTipText(sdf.format(this.traceDetectedFilterMap.get(TraceDetectedDateFilterEnum.YESTERDAY)));
         traceTerm30days.setToolTipText(String.format("%s ～ %s", sdf.format(this.traceDetectedFilterMap.get(TraceDetectedDateFilterEnum.BEFORE_30_DAYS)),
@@ -1011,6 +1012,7 @@ public class VulTabItem extends CTabItem implements PropertyChangeListener {
                 sdf.format(this.traceDetectedFilterMap.get(TraceDetectedDateFilterEnum.HALF_1ST_END))));
         traceTermHalf2nd.setToolTipText(String.format("%s ～ %s", sdf.format(this.traceDetectedFilterMap.get(TraceDetectedDateFilterEnum.HALF_2ND_START)),
                 sdf.format(traceDetectedFilterMap.get(TraceDetectedDateFilterEnum.HALF_2ND_END))));
+        detectedDateLabelUpdate();
     }
 
     private Date[] getFrToDetectedDate() {
@@ -1127,7 +1129,13 @@ public class VulTabItem extends CTabItem implements PropertyChangeListener {
     @Override
     public void propertyChange(PropertyChangeEvent event) {
         if ("shellActivated".equals(event.getPropertyName())) {
-            updateTermFilterOption();
+            this.traceDetectedFilterMap = getTraceDetectedDateMap();
+            Date[] frToDate = getFrToDetectedDate();
+            if (frToDate.length > 1) {
+                this.frDetectedDate = frToDate[0];
+                this.toDetectedDate = frToDate[1];
+                updateTermFilterOption();
+            }
         } else if ("shellClosed".equals(event.getPropertyName())) { //$NON-NLS-1$
             ps.setValue(PreferenceConstants.VULN_CHOICE, getSelectedVulnType().name());
             ps.setValue(PreferenceConstants.DETECT_CHOICE, getSelectedDetectType().name());
