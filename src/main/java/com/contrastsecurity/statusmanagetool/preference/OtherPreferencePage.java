@@ -218,17 +218,17 @@ public class OtherPreferencePage extends PreferencePage {
         }
         List<String> errors = new ArrayList<String>();
         if (this.maxRetriesTxt.getText().isEmpty()) {
-            errors.add(Messages.getString("otherpreferencepage.retry.maxretries.empty.error.message")); //$NON-NLS-1$
+            errors.add("・リトライ上限数を指定してください。");
         } else {
             if (!StringUtils.isNumeric(this.maxRetriesTxt.getText())) {
-                errors.add(Messages.getString("otherpreferencepage.retry.maxretries.nondigit.error.message")); //$NON-NLS-1$
+                errors.add("・リトライ上限数は数値を指定してください。");
             }
         }
         if (this.retryIntervalTxt.getText().isEmpty()) {
-            errors.add(Messages.getString("otherpreferencepage.retry.retryinterval.empty.error.message")); //$NON-NLS-1$
+            errors.add("・リトライ間隔（ミリ秒）を指定してください。");
         } else {
             if (!StringUtils.isNumeric(this.retryIntervalTxt.getText())) {
-                errors.add(Messages.getString("otherpreferencepage.retry.retryinterval.nondigit.error.message")); //$NON-NLS-1$
+                errors.add("・リトライ間隔（ミリ秒）は数値を指定してください。");
             }
         }
         if (!errors.isEmpty()) {

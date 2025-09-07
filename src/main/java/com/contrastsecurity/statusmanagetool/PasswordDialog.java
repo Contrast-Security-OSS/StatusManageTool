@@ -60,7 +60,7 @@ public class PasswordDialog extends Dialog {
         Composite composite = (Composite) super.createDialogArea(parent);
         composite.setLayout(new GridLayout(2, false));
 
-        new Label(composite, SWT.LEFT).setText(Messages.getString("passworddialog.password.label")); //$NON-NLS-1$
+        new Label(composite, SWT.LEFT).setText("パスワード：");
         passTxt = new Text(composite, SWT.BORDER);
         passTxt.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
         passTxt.setEchoChar('*');
@@ -84,7 +84,7 @@ public class PasswordDialog extends Dialog {
         Label messageLbl = new Label(composite, SWT.LEFT);
         messageLbl.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
         if (retryCnt > 0) {
-            messageLbl.setText(Messages.getString("passworddialog.authentication.failure.message")); //$NON-NLS-1$
+            messageLbl.setText("認証に失敗しました。");
             messageLbl.setForeground(getShell().getDisplay().getSystemColor(SWT.COLOR_RED));
         }
 
@@ -96,7 +96,7 @@ public class PasswordDialog extends Dialog {
     protected void createButtonsForButtonBar(Composite parent) {
         Button okButton = createButton(parent, IDialogConstants.OK_ID, IDialogConstants.OK_LABEL, true);
         okButton.setEnabled(false);
-        createButton(parent, IDialogConstants.CANCEL_ID, Messages.getString("passworddialog.cancel.button.title"), false); //$NON-NLS-1$
+        createButton(parent, IDialogConstants.CANCEL_ID, "キャンセル", false);
     }
 
     @Override
@@ -122,7 +122,7 @@ public class PasswordDialog extends Dialog {
     @Override
     protected void configureShell(Shell newShell) {
         super.configureShell(newShell);
-        newShell.setText(Messages.getString("passworddialog.title")); //$NON-NLS-1$
+        newShell.setText("認証");
     }
 
     public void addPropertyChangeListener(PropertyChangeListener listener) {
