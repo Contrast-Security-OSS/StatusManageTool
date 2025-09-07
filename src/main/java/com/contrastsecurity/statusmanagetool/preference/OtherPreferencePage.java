@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferencePage;
@@ -39,8 +40,13 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Text;
+
+import com.contrastsecurity.statusmanagetool.Messages;
 
 public class OtherPreferencePage extends PreferencePage {
 
@@ -49,6 +55,10 @@ public class OtherPreferencePage extends PreferencePage {
     public static String[] MONTHS = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Oct", "Nov", "Dec" };
     public static String[] WEEKDAYS = { "日曜日", "月曜日", "火曜日", "水曜日", "木曜日", "金曜日", "土曜日" };
     private List<Button> weekDayBtns = new ArrayList<Button>();
+    private Button customInterceptorBtn;
+    private Button tryCatchBtn;
+    private Text maxRetriesTxt;
+    private Text retryIntervalTxt;
 
     public OtherPreferencePage() {
         super("その他設定");
@@ -103,6 +113,56 @@ public class OtherPreferencePage extends PreferencePage {
             weekDayIdx++;
         }
 
+        Group retryGrp = new Group(composite, SWT.NONE);
+        GridLayout retryGrpLt = new GridLayout(2, false);
+        retryGrpLt.marginWidth = 15;
+        retryGrpLt.horizontalSpacing = 10;
+        retryGrp.setLayout(retryGrpLt);
+        GridData retryGrpGrDt = new GridData(GridData.FILL_HORIZONTAL);
+        // retryGrpGrDt.horizontalSpan = 4;
+        retryGrp.setLayoutData(retryGrpGrDt);
+        retryGrp.setText("リトライ設定");
+
+        Group retryMethodGrp = new Group(retryGrp, SWT.NONE);
+        GridLayout retryMethodGrpLt = new GridLayout(7, false);
+        retryMethodGrpLt.horizontalSpacing = 10;
+        retryMethodGrp.setLayout(retryMethodGrpLt);
+        GridData retryMethodGrpGrDt = new GridData(GridData.FILL_HORIZONTAL);
+        retryMethodGrpGrDt.horizontalSpan = 2;
+        retryMethodGrp.setLayoutData(retryMethodGrpGrDt);
+        retryMethodGrp.setText("リトライ方式");
+        customInterceptorBtn = new Button(retryMethodGrp, SWT.RADIO);
+        customInterceptorBtn.setText("カスタムインターセプター");
+        tryCatchBtn = new Button(retryMethodGrp, SWT.RADIO);
+        tryCatchBtn.setText("Try-Catch");
+        if (ps.getString(PreferenceConstants.RETRY_METHOD).equals("interceptor")) {
+            customInterceptorBtn.setSelection(true);
+            tryCatchBtn.setSelection(false);
+        } else {
+            customInterceptorBtn.setSelection(false);
+            tryCatchBtn.setSelection(true);
+        }
+
+        new Label(retryGrp, SWT.LEFT).setText("リトライ上限数");
+        maxRetriesTxt = new Text(retryGrp, SWT.BORDER);
+        maxRetriesTxt.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+        maxRetriesTxt.setText(ps.getString(PreferenceConstants.MAX_RETRIES));
+        maxRetriesTxt.addListener(SWT.FocusIn, new Listener() {
+            public void handleEvent(Event e) {
+                maxRetriesTxt.selectAll();
+            }
+        });
+
+        new Label(retryGrp, SWT.LEFT).setText("リトライ間隔（ミリ秒）");
+        retryIntervalTxt = new Text(retryGrp, SWT.BORDER);
+        retryIntervalTxt.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+        retryIntervalTxt.setText(ps.getString(PreferenceConstants.RETRY_INTERVAL));
+        retryIntervalTxt.addListener(SWT.FocusIn, new Listener() {
+            public void handleEvent(Event e) {
+                retryIntervalTxt.selectAll();
+            }
+        });
+
         Composite buttonGrp = new Composite(parent, SWT.NONE);
         GridLayout buttonGrpLt = new GridLayout(2, false);
         buttonGrpLt.marginHeight = 15;
@@ -127,6 +187,10 @@ public class OtherPreferencePage extends PreferencePage {
                 }
                 Button btn = weekDayBtns.get(ps.getDefaultInt(PreferenceConstants.START_WEEKDAY));
                 btn.setSelection(true);
+                customInterceptorBtn.setSelection(true);
+                tryCatchBtn.setSelection(false);
+                maxRetriesTxt.setText(ps.getDefaultString(PreferenceConstants.MAX_RETRIES));
+                retryIntervalTxt.setText(ps.getDefaultString(PreferenceConstants.RETRY_INTERVAL));
             }
         });
 
@@ -153,6 +217,20 @@ public class OtherPreferencePage extends PreferencePage {
             return true;
         }
         List<String> errors = new ArrayList<String>();
+        if (this.maxRetriesTxt.getText().isEmpty()) {
+            errors.add(Messages.getString("otherpreferencepage.retry.maxretries.empty.error.message")); //$NON-NLS-1$
+        } else {
+            if (!StringUtils.isNumeric(this.maxRetriesTxt.getText())) {
+                errors.add(Messages.getString("otherpreferencepage.retry.maxretries.nondigit.error.message")); //$NON-NLS-1$
+            }
+        }
+        if (this.retryIntervalTxt.getText().isEmpty()) {
+            errors.add(Messages.getString("otherpreferencepage.retry.retryinterval.empty.error.message")); //$NON-NLS-1$
+        } else {
+            if (!StringUtils.isNumeric(this.retryIntervalTxt.getText())) {
+                errors.add(Messages.getString("otherpreferencepage.retry.retryinterval.nondigit.error.message")); //$NON-NLS-1$
+            }
+        }
         if (!errors.isEmpty()) {
             MessageDialog.openError(getShell(), "その他設定", String.join("\r\n", errors));
             return false;
@@ -166,6 +244,13 @@ public class OtherPreferencePage extends PreferencePage {
                 weekDaySelection++;
             }
             ps.setValue(PreferenceConstants.START_WEEKDAY, weekDaySelection);
+            ps.setValue(PreferenceConstants.MAX_RETRIES, this.maxRetriesTxt.getText());
+            if (customInterceptorBtn.getSelection()) {
+                ps.setValue(PreferenceConstants.RETRY_METHOD, "interceptor");
+            } else {
+                ps.setValue(PreferenceConstants.RETRY_METHOD, "trycatch");
+            }
+            ps.setValue(PreferenceConstants.RETRY_INTERVAL, this.retryIntervalTxt.getText());
         }
         return true;
     }

@@ -239,8 +239,10 @@ public abstract class Api {
         // System.out.println("3.10.0 earlier");
         // }
         boolean isExistTsvOrg = false;
-        for (Organization tsvLoginChkOrg : ((VulnStatusManageToolShell) this.shell).getMain().getValidOrganizations()) {
+        boolean isSuperAdmin = ps.getBoolean(PreferenceConstants.IS_SUPERADMIN);
+        if (isSuperAdmin) {
             Api tsvLoginApi = null;
+            Organization tsvLoginChkOrg = ((VulnStatusManageToolShell) this.shell).getMain().getValidOrganization();
             if (((VulnStatusManageToolShell) this.shell).getMain().getAuthType() == AuthType.PASSWORD) {
                 tsvLoginApi = new TsvLoginApi(shell, ps, tsvLoginChkOrg, this.contrastUrl, this.userName);
             } else {
@@ -248,6 +250,17 @@ public abstract class Api {
             }
             TsvLoginJson tsvJson = (TsvLoginJson) tsvLoginApi.getWithoutCheckTsv();
             isExistTsvOrg |= tsvJson.isTsv_login();
+        } else {
+            for (Organization tsvLoginChkOrg : ((VulnStatusManageToolShell) this.shell).getMain().getValidOrganizations()) {
+                Api tsvLoginApi = null;
+                if (((VulnStatusManageToolShell) this.shell).getMain().getAuthType() == AuthType.PASSWORD) {
+                    tsvLoginApi = new TsvLoginApi(shell, ps, tsvLoginChkOrg, this.contrastUrl, this.userName);
+                } else {
+                    tsvLoginApi = new TsvLoginApi(shell, ps, tsvLoginChkOrg, this.contrastUrl, this.userName, this.serviceKey);
+                }
+                TsvLoginJson tsvJson = (TsvLoginJson) tsvLoginApi.getWithoutCheckTsv();
+                isExistTsvOrg |= tsvJson.isTsv_login();
+            }
         }
         if (!isExistTsvOrg) {
             return null;

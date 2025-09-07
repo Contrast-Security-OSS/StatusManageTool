@@ -11,7 +11,7 @@ import okhttp3.Response;
 
 public class RetryInterceptor implements Interceptor {
 
-    Logger logger = LogManager.getLogger("csvdltool"); //$NON-NLS-1$
+    Logger logger = LogManager.getLogger("statusmanagetool");
 
     private final int maxRetries;
     private final long retryDelayMillis;

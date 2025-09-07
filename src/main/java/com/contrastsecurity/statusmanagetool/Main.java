@@ -170,6 +170,10 @@ public class Main implements PropertyChangeListener {
             this.ps.setDefault(PreferenceConstants.AUTO_RELOGIN_INTERVAL, 105);
             this.ps.setDefault(PreferenceConstants.AUTH_RETRY_MAX, 3);
 
+            this.ps.setDefault(PreferenceConstants.RETRY_METHOD, "interceptor"); // interceptor or trycatch
+            this.ps.setDefault(PreferenceConstants.MAX_RETRIES, 3);
+            this.ps.setDefault(PreferenceConstants.RETRY_INTERVAL, 1000);
+
             this.ps.setDefault(PreferenceConstants.VULN_CHOICE, VulnTypeEnum.ALL.name());
             this.ps.setDefault(PreferenceConstants.DETECT_CHOICE, "FIRST");
             this.ps.setDefault(PreferenceConstants.TERM_START_MONTH, "Jan");
@@ -251,10 +255,17 @@ public class Main implements PropertyChangeListener {
                 }
                 boolean isSuperAdmin = ps.getBoolean(PreferenceConstants.IS_SUPERADMIN);
                 String svc = ps.getString(PreferenceConstants.SERVICE_KEY);
+                String org_id = ps.getString(PreferenceConstants.ORG_ID);
                 if (isSuperAdmin) {
                     String api = ps.getString(PreferenceConstants.API_KEY);
-                    if (url.isEmpty() || usr.isEmpty() || svc.isEmpty() || api.isEmpty()) {
-                        ngRequiredFields = true;
+                    if (authType == AuthType.PASSWORD) {
+                        if (url.isEmpty() || usr.isEmpty() || api.isEmpty() || org_id.isEmpty()) {
+                            ngRequiredFields = true;
+                        }
+                    } else {
+                        if (url.isEmpty() || usr.isEmpty() || svc.isEmpty() || api.isEmpty() || org_id.isEmpty()) {
+                            ngRequiredFields = true;
+                        }
                     }
                 } else {
                     if (authType == AuthType.PASSWORD) {

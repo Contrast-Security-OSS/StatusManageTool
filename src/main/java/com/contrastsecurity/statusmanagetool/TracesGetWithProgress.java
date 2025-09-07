@@ -103,7 +103,8 @@ public class TracesGetWithProgress implements IRunnableWithProgress {
             monitor.subTask("組織一覧の読み込み...");
             List<Organization> orgsForSuperAdmin = new ArrayList<Organization>();
             try {
-                Api orgsApi = new OrganizationsApi(this.shell, this.ps, baseOrg, 0);
+                Api orgsApi = null;
+                orgsApi = new OrganizationsApi(this.shell, this.ps, baseOrg, 0);
                 List<Organization> tmpOrgs = (List<Organization>) orgsApi.get();
                 int totalOrgCount = orgsApi.getTotalCount();
                 orgsForSuperAdmin.addAll(tmpOrgs);
