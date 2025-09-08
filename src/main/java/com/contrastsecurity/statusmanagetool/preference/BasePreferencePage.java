@@ -283,6 +283,7 @@ public class BasePreferencePage extends PreferencePage {
             }
         } else {
             new Label(baseGrp, SWT.LEFT).setText("Service Key：");
+            new Label(baseGrp, SWT.LEFT).setText("");
             serviceKeyTxt = new Text(baseGrp, SWT.BORDER);
             serviceKeyTxt.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
             serviceKeyTxt.setText(ps.getString(PreferenceConstants.SERVICE_KEY));
