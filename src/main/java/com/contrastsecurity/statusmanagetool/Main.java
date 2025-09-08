@@ -181,6 +181,7 @@ public class Main implements PropertyChangeListener {
             this.ps.setDefault(PreferenceConstants.TRACE_DETECTED_DATE_FILTER, 0);
 
             this.ps.setDefault(PreferenceConstants.OPENED_MAIN_TAB_IDX, 0);
+            this.ps.setDefault(PreferenceConstants.OPENED_VUL_SUBTAB_IDX, 3);
             if (this.authType == AuthType.PASSWORD) {
                 this.ps.setValue(PreferenceConstants.SERVICE_KEY, "");
             }
@@ -221,6 +222,7 @@ public class Main implements PropertyChangeListener {
 
             @Override
             public void shellClosed(ShellEvent event) {
+                support.firePropertyChange("shellClosed", null, false);
                 int main_idx = mainTabFolder.getSelectionIndex();
                 ps.setValue(PreferenceConstants.OPENED_MAIN_TAB_IDX, main_idx);
                 ps.setValue(PreferenceConstants.MEM_WIDTH, shell.getSize().x);

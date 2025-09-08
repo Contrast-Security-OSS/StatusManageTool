@@ -65,6 +65,7 @@ public class PreferenceConstants {
     public static final String TRACE_DETECTED_DATE_FILTER = new String("com.contrastsecurity.vulnstatusmanagetool.trace_detected_date_filter"); //$NON-NLS-1$
 
     public static final String OPENED_MAIN_TAB_IDX = new String("com.contrastsecurity.vulnstatusmanagetool.opened_main_tab_idx"); //$NON-NLS-1$
+    public static final String OPENED_VUL_SUBTAB_IDX = new String("com.contrastsecurity.vulnstatusmanagetool.opened_vul_subtab_idx"); //$NON-NLS-1$
     public static final String MEM_WIDTH = new String("com.contrastsecurity.vulnstatusmanagetool.mem_width"); //$NON-NLS-1$
     public static final String MEM_HEIGHT = new String("com.contrastsecurity.vulnstatusmanagetool.mem_height"); //$NON-NLS-1$
 }

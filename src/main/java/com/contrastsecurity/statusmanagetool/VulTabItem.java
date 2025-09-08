@@ -2,6 +2,7 @@ package com.contrastsecurity.statusmanagetool;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
@@ -34,6 +35,7 @@ import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.TableEditor;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -56,7 +58,6 @@ import com.contrastsecurity.statusmanagetool.json.ContrastJson;
 import com.contrastsecurity.statusmanagetool.json.PendingStatusApprovalJson;
 import com.contrastsecurity.statusmanagetool.model.Filter;
 import com.contrastsecurity.statusmanagetool.model.ItemForVulnerability;
-import com.contrastsecurity.statusmanagetool.model.Note;
 import com.contrastsecurity.statusmanagetool.model.Organization;
 import com.contrastsecurity.statusmanagetool.preference.OtherPreferencePage;
 import com.contrastsecurity.statusmanagetool.preference.PreferenceConstants;
@@ -98,7 +99,6 @@ public class VulTabItem extends CTabItem implements PropertyChangeListener {
     private Table traceTable;
     private List<Button> checkBoxList = new ArrayList<Button>();
     private List<Integer> selectedIdxes = new ArrayList<Integer>();
-    private Table noteTable;
     private List<ItemForVulnerability> traces;
     private List<ItemForVulnerability> filteredTraces = new ArrayList<ItemForVulnerability>();
     private Map<TraceDetectedDateFilterEnum, Date> traceDetectedFilterMap;
@@ -106,7 +106,11 @@ public class VulTabItem extends CTabItem implements PropertyChangeListener {
     private Button approveBtn;
     private Button rejectBtn;
 
+    private CTabFolder subTabFolder;
+
     private PreferenceStore ps;
+
+    private PropertyChangeSupport support = new PropertyChangeSupport(this);
 
     Logger logger = LogManager.getLogger("vulnstatusmanagetool");
 
@@ -454,11 +458,7 @@ public class VulTabItem extends CTabItem implements PropertyChangeListener {
             @Override
             public void widgetSelected(SelectionEvent e) {
                 ItemForVulnerability selectedVul = filteredTraces.get(traceTable.getSelectionIndex());
-                noteTable.clearAll();
-                noteTable.removeAll();
-                for (Note note : selectedVul.getVulnerability().getNotes()) {
-                    addColToNoteTable(note, -1);
-                }
+                support.firePropertyChange("selectedTraceChanged", null, selectedVul);
             }
         });
 
@@ -636,39 +636,23 @@ public class VulTabItem extends CTabItem implements PropertyChangeListener {
 
         sashForm.setWeights(new int[] { 75, 25 });
 
-        noteTable = new Table(bottomComposite, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI);
-        GridData noteTableGrDt = new GridData(GridData.FILL_BOTH);
-        noteTableGrDt.horizontalSpan = 3;
-        // noteTableGrDt.minimumHeight = 100;
-        // noteTableGrDt.heightHint = 150;
-        noteTable.setLayoutData(noteTableGrDt);
-        noteTable.setLinesVisible(true);
-        noteTable.setHeaderVisible(true);
-
-        TableColumn noteCol0 = new TableColumn(noteTable, SWT.NONE);
-        noteCol0.setWidth(0);
-        noteCol0.setResizable(false);
-        TableColumn noteCol1 = new TableColumn(noteTable, SWT.CENTER);
-        noteCol1.setWidth(150);
-        noteCol1.setText("作成日時");
-        TableColumn noteCol2 = new TableColumn(noteTable, SWT.CENTER);
-        noteCol2.setWidth(200);
-        noteCol2.setText("作成者");
-        TableColumn noteCol3 = new TableColumn(noteTable, SWT.CENTER);
-        noteCol3.setWidth(100);
-        noteCol3.setText("承認処理");
-        TableColumn noteCol4 = new TableColumn(noteTable, SWT.LEFT);
-        noteCol4.setWidth(500);
-        noteCol4.setText("コメント");
-        TableColumn noteCol5 = new TableColumn(noteTable, SWT.CENTER);
-        noteCol5.setWidth(100);
-        noteCol5.setText("変更前ステータス");
-        TableColumn noteCol6 = new TableColumn(noteTable, SWT.CENTER);
-        noteCol6.setWidth(100);
-        noteCol6.setText("変更後ステータス");
-        TableColumn noteCol7 = new TableColumn(noteTable, SWT.CENTER);
-        noteCol7.setWidth(150);
-        noteCol7.setText("変更理由");
+        subTabFolder = new CTabFolder(bottomComposite, SWT.NONE);
+        GridData subTabFolderGrDt = new GridData(GridData.FILL_BOTH);
+        subTabFolder.setLayoutData(subTabFolderGrDt);
+        subTabFolder.setSelectionBackground(
+                new Color[] { shell.getDisplay().getSystemColor(SWT.COLOR_WIDGET_BACKGROUND), shell.getDisplay().getSystemColor(SWT.COLOR_WIDGET_LIGHT_SHADOW) }, new int[] { 100 },
+                true);
+        subTabFolder.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+            }
+        });
+        addPropertyChangeListener(new VulSubOverviewTabItem(subTabFolder, toolShell, ps));
+        addPropertyChangeListener(new VulSubDetailTabItem(subTabFolder, toolShell, ps));
+        addPropertyChangeListener(new VulSubHttpinfoTabItem(subTabFolder, toolShell, ps));
+        addPropertyChangeListener(new VulSubNoteTabItem(subTabFolder, toolShell, ps));
+        int vul_subtab_idx = this.ps.getInt(PreferenceConstants.OPENED_VUL_SUBTAB_IDX);
+        subTabFolder.setSelection(vul_subtab_idx);
 
         statusChangeBtn = new Button(vulnListGrp, SWT.PUSH);
         GridData statusChangeBtnGrDt = new GridData(GridData.FILL_HORIZONTAL);
@@ -942,29 +926,6 @@ public class VulTabItem extends CTabItem implements PropertyChangeListener {
         item.setText(9, vuln.getVulnerability().getOrg().getName());
     }
 
-    private void addColToNoteTable(Note note, int index) {
-        if (note == null) {
-            return;
-        }
-        TableItem item = new TableItem(noteTable, SWT.CENTER);
-        item.setText(1, note.getCreationStr());
-        item.setText(2, note.getCreator());
-        String resolutionStr = note.getProperty("pending.status.resolution");
-        if (!resolutionStr.isEmpty()) {
-            if (Boolean.valueOf(resolutionStr)) {
-                item.setText(3, "○");
-            } else {
-                item.setText(3, "×");
-            }
-        } else {
-            item.setText(3, "");
-        }
-        item.setText(4, note.getNote());
-        item.setText(5, note.getProperty("status.change.previous.status"));
-        item.setText(6, note.getProperty("status.change.status"));
-        item.setText(7, note.getProperty("status.change.substatus"));
-    }
-
     public VulnTypeEnum getSelectedVulnType() {
         for (Map.Entry<VulnTypeEnum, Button> entry : vulnTypeBtnMap.entrySet()) {
             if (entry.getValue().getSelection()) {
@@ -1136,7 +1097,9 @@ public class VulTabItem extends CTabItem implements PropertyChangeListener {
                 this.toDetectedDate = frToDate[1];
                 updateTermFilterOption();
             }
-        } else if ("shellClosed".equals(event.getPropertyName())) { //$NON-NLS-1$
+        } else if ("shellClosed".equals(event.getPropertyName())) {
+            int sub_idx = subTabFolder.getSelectionIndex();
+            ps.setValue(PreferenceConstants.OPENED_VUL_SUBTAB_IDX, sub_idx);
             ps.setValue(PreferenceConstants.VULN_CHOICE, getSelectedVulnType().name());
             ps.setValue(PreferenceConstants.DETECT_CHOICE, getSelectedDetectType().name());
             for (Button termBtn : traceDetectedRadios) {
@@ -1223,6 +1186,20 @@ public class VulTabItem extends CTabItem implements PropertyChangeListener {
             }
             traceCount.setText(String.format("%d/%d", filteredTraces.size(), traces.size()));
         }
+    }
+
+    /**
+     * @param listener
+     */
+    public synchronized void addPropertyChangeListener(PropertyChangeListener listener) {
+        this.support.addPropertyChangeListener(listener);
+    }
+
+    /**
+     * @param listener
+     */
+    public synchronized void removePropertyChangeListener(PropertyChangeListener listener) {
+        this.support.removePropertyChangeListener(listener);
     }
 
 }
