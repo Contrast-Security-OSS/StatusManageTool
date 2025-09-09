@@ -17,6 +17,9 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
+import com.contrastsecurity.statusmanagetool.model.ItemForVulnerability;
+import com.contrastsecurity.statusmanagetool.model.Note;
+
 public class VulSubHttpinfoTabItem extends CTabItem implements PropertyChangeListener {
 
     private PreferenceStore ps;
@@ -43,8 +46,15 @@ public class VulSubHttpinfoTabItem extends CTabItem implements PropertyChangeLis
         setControl(shell);
     }
 
+    private void uiReset() {
+    }
+
     @Override
-    public void propertyChange(PropertyChangeEvent evt) {
+    public void propertyChange(PropertyChangeEvent event) {
+        if ("selectedTraceChanged".equals(event.getPropertyName())) {
+        } else if ("uiReset".equals(event.getPropertyName())) {
+            uiReset();
+        }
     }
 
 }

@@ -94,6 +94,11 @@ public class VulSubNoteTabItem extends CTabItem implements PropertyChangeListene
         item.setText(7, note.getProperty("status.change.substatus"));
     }
 
+    private void uiReset() {
+        noteTable.clearAll();
+        noteTable.removeAll();
+    }
+
     @Override
     public void propertyChange(PropertyChangeEvent event) {
         if ("selectedTraceChanged".equals(event.getPropertyName())) {
@@ -103,7 +108,8 @@ public class VulSubNoteTabItem extends CTabItem implements PropertyChangeListene
             for (Note note : selectedVul.getVulnerability().getNotes()) {
                 addColToNoteTable(note, -1);
             }
+        } else if ("uiReset".equals(event.getPropertyName())) {
+            uiReset();
         }
     }
-
 }

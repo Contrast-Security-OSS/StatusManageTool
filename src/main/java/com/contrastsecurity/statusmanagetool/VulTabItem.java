@@ -876,6 +876,16 @@ public class VulTabItem extends CTabItem implements PropertyChangeListener {
         setControl(shell);
     }
 
+    private void uiReset() {
+        filteredTraces.clear();
+        traceTable.clearAll();
+        traceTable.removeAll();
+        for (Button button : checkBoxList) {
+            button.dispose();
+        }
+        checkBoxList.clear();
+    }
+
     private void detectedDateLabelUpdate() {
         if (frDetectedDate != null && toDetectedDate != null) {
             traceDetectedFilterTxt.setText(String.format("%s ～ %s", sdf.format(frDetectedDate), sdf.format(toDetectedDate)));
@@ -1114,6 +1124,8 @@ public class VulTabItem extends CTabItem implements PropertyChangeListener {
         } else if ("buttonEnabled".equals(event.getPropertyName())) {
             traceLoadBtn.setEnabled((Boolean) event.getNewValue());
         } else if ("validOrgChanged".equals(event.getPropertyName())) {
+            uiReset();
+            support.firePropertyChange("uiReset", null, null);
         } else if ("traceFilter".equals(event.getPropertyName())) {
             @SuppressWarnings("unchecked")
             Map<FilterEnum, Set<Filter>> filterMap = (Map<FilterEnum, Set<Filter>>) event.getNewValue();

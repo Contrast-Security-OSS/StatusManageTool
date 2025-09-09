@@ -95,6 +95,8 @@ public class Main implements PropertyChangeListener {
 
     private CTabFolder mainTabFolder;
 
+    private String validOrganizationsOldStr;
+
     private Button settingBtn;
     private Button logOutBtn;
 
@@ -218,6 +220,7 @@ public class Main implements PropertyChangeListener {
 
             @Override
             public void shellDeactivated(ShellEvent event) {
+                setValidOrganizationsOldStr(new Gson().toJson(getValidOrganizations()));
             }
 
             @Override
@@ -286,6 +289,11 @@ public class Main implements PropertyChangeListener {
                     support.firePropertyChange("validOrgChanged", null, null);
                     settingBtn.setText("このボタンから基本設定を行ってください。");
                 } else {
+                    String validOrganizationsNewStr = new Gson().toJson(orgs);
+                    if (!validOrganizationsNewStr.equals(getValidOrganizationsOldStr())) {
+                        ps.setValue(PreferenceConstants.TSV_STATUS, TsvStatusEnum.NONE.name());
+                        support.firePropertyChange("validOrgChanged", null, null);
+                    }
                     support.firePropertyChange("buttonEnabled", null, true);
                     settingBtn.setText("設定");
                 }
@@ -502,6 +510,14 @@ public class Main implements PropertyChangeListener {
 
     public PreferenceStore getPreferenceStore() {
         return ps;
+    }
+
+    public String getValidOrganizationsOldStr() {
+        return validOrganizationsOldStr;
+    }
+
+    public void setValidOrganizationsOldStr(String validOrganizationsOldStr) {
+        this.validOrganizationsOldStr = validOrganizationsOldStr;
     }
 
     public void setWindowTitle() {

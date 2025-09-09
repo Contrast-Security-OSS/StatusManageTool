@@ -43,8 +43,15 @@ public class VulSubOverviewTabItem extends CTabItem implements PropertyChangeLis
         setControl(shell);
     }
 
+    private void uiReset() {
+    }
+
     @Override
-    public void propertyChange(PropertyChangeEvent evt) {
+    public void propertyChange(PropertyChangeEvent event) {
+        if ("selectedTraceChanged".equals(event.getPropertyName())) {
+        } else if ("uiReset".equals(event.getPropertyName())) {
+            uiReset();
+        }
     }
 
 }
