@@ -1,6 +1,6 @@
 /*
  * MIT License
- * Copyright (c) 2025 Contrast Security Japan G.K.
+ * Copyright (c) 2020 Contrast Security Japan G.K.
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -21,35 +21,37 @@
  * 
  */
 
-package com.contrastsecurity.statusmanagetool;
+package com.contrastsecurity.statusmanagetool.api;
 
-public enum SubStatusEnum {
-    OT("その他", "OT", true),
-    URL("信頼できるパワーユーザーのみがアクセスできるURL", "URL", true),
-    SC("内部のセキュリティ制御を通過", "SC", true),
-    EC("外部制御により防御された攻撃", "EC", true),
-    FP("誤検知", "FP", true);
+import java.lang.reflect.Type;
 
-    private String label;
-    private String value;
-    private boolean requiredNote;
+import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.swt.widgets.Shell;
 
-    private SubStatusEnum(String label, String value, boolean requiredNote) {
-        this.label = label;
-        this.value = value;
-        this.requiredNote = requiredNote;
+import com.contrastsecurity.statusmanagetool.json.FilterJson;
+import com.contrastsecurity.statusmanagetool.model.Organization;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+public class FilterStatusApi extends Api {
+
+    public FilterStatusApi(Shell shell, IPreferenceStore ps, Organization org) {
+        super(shell, ps, org);
     }
 
-    public String getLabel() {
-        return label;
+    @Override
+    protected String getUrl() {
+        String orgId = this.org.getOrganization_uuid();
+        return String.format("%s/api/ng/%s/orgtraces/filter/status/listing?expand=skip_links", this.contrastUrl, orgId);
     }
 
-    public String getValue() {
-        return value;
-    }
-
-    public boolean isRequiredNote() {
-        return requiredNote;
+    @Override
+    protected Object convert(String response) {
+        Gson gson = new Gson();
+        Type filterSeverityJsonType = new TypeToken<FilterJson>() {
+        }.getType();
+        FilterJson filterSeverityJson = gson.fromJson(response, filterSeverityJsonType);
+        return filterSeverityJson.getFilters();
     }
 
 }

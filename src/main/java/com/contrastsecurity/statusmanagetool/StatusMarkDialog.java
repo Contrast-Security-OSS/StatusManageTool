@@ -23,6 +23,9 @@
 
 package com.contrastsecurity.statusmanagetool;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -44,10 +47,14 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
+import com.contrastsecurity.statusmanagetool.model.Organization;
+import com.contrastsecurity.statusmanagetool.model.SubStatusOTAlias;
+
 public class StatusMarkDialog extends Dialog {
 
     private IPreferenceStore ps;
-    private VulnStatusManageToolShell shell;
+    private VulnStatusManageToolShell toolShell;
+    private List<Organization> orgs;
     private int selectedStatusIndex;
     private Combo subStatusCombo;
     private int selectedSubStatusIndex;
@@ -55,10 +62,11 @@ public class StatusMarkDialog extends Dialog {
     private Text noteText;
     private String note;
 
-    public StatusMarkDialog(VulnStatusManageToolShell parentShell, IPreferenceStore ps) {
+    public StatusMarkDialog(VulnStatusManageToolShell parentShell, IPreferenceStore ps, List<Organization> orgs) {
         super(parentShell);
-        this.shell = parentShell;
+        this.toolShell = parentShell;
         this.ps = ps;
+        this.orgs = orgs;
     }
 
     @Override
@@ -103,6 +111,17 @@ public class StatusMarkDialog extends Dialog {
                 okPressBtnUpdate();
             }
         });
+        List<String> aliasList = new ArrayList<String>();
+        for (Organization org : this.orgs) {
+            SubStatusOTAlias alias = this.toolShell.getMain().getOrgOTAliasMap().get(org.getOrganization_uuid());
+            if (alias != null) {
+                aliasList.add(String.format("%s: %s", org.getName(), alias.getLabel()));
+            }
+        }
+        if (!aliasList.isEmpty()) {
+            aliasList.add(0, "理由の「その他」に関しては、各組織ごとに別ラベルが設定されている場合があります。別ラベルについては以下参照ください。");
+        }
+        subStatusCombo.setToolTipText(String.join("\r\n", aliasList));
 
         descLbl = new Label(composite, SWT.LEFT);
         GridData descLblGrDt = new GridData(GridData.FILL_HORIZONTAL);

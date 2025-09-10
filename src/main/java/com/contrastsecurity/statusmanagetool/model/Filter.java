@@ -23,11 +23,14 @@
 
 package com.contrastsecurity.statusmanagetool.model;
 
+import java.util.List;
+
 public class Filter {
     private String keycode;
     private String label;
     private int count;
     private boolean new_group;
+    private List<Filter> subfilters;
     private boolean isValid;
 
     public Filter() {
@@ -75,6 +78,14 @@ public class Filter {
 
     public void setNew_group(boolean new_group) {
         this.new_group = new_group;
+    }
+
+    public List<Filter> getSubfilters() {
+        return subfilters;
+    }
+
+    public void setSubfilters(List<Filter> subfilters) {
+        this.subfilters = subfilters;
     }
 
     public boolean isValid() {

@@ -33,7 +33,9 @@ import java.io.StringWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.exec.OS;
 import org.apache.logging.log4j.LogManager;
@@ -63,6 +65,7 @@ import org.eclipse.swt.widgets.Label;
 import com.contrastsecurity.statusmanagetool.api.Api;
 import com.contrastsecurity.statusmanagetool.api.LogoutApi;
 import com.contrastsecurity.statusmanagetool.model.Organization;
+import com.contrastsecurity.statusmanagetool.model.SubStatusOTAlias;
 import com.contrastsecurity.statusmanagetool.preference.AboutPage;
 import com.contrastsecurity.statusmanagetool.preference.BasePreferencePage;
 import com.contrastsecurity.statusmanagetool.preference.ConnectionPreferencePage;
@@ -95,6 +98,7 @@ public class Main implements PropertyChangeListener {
 
     private CTabFolder mainTabFolder;
 
+    private Map<String, SubStatusOTAlias> orgOTAliasMap;
     private String validOrganizationsOldStr;
 
     private Button settingBtn;
@@ -190,6 +194,7 @@ public class Main implements PropertyChangeListener {
         } catch (Exception e) {
             // e.printStackTrace();
         }
+        this.orgOTAliasMap = new HashMap<String, SubStatusOTAlias>();
     }
 
     private void createPart() {
@@ -510,6 +515,14 @@ public class Main implements PropertyChangeListener {
 
     public PreferenceStore getPreferenceStore() {
         return ps;
+    }
+
+    public Map<String, SubStatusOTAlias> getOrgOTAliasMap() {
+        return orgOTAliasMap;
+    }
+
+    public void putOrgOTAlias(SubStatusOTAlias alias) {
+        this.orgOTAliasMap.put(alias.getOrganization_uuid(), alias);
     }
 
     public String getValidOrganizationsOldStr() {

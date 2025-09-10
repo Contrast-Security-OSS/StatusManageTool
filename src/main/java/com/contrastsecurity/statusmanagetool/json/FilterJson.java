@@ -1,6 +1,6 @@
 /*
  * MIT License
- * Copyright (c) 2025 Contrast Security Japan G.K.
+ * Copyright (c) 2020 Contrast Security Japan G.K.
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -21,35 +21,21 @@
  * 
  */
 
-package com.contrastsecurity.statusmanagetool;
+package com.contrastsecurity.statusmanagetool.json;
 
-public enum SubStatusEnum {
-    OT("その他", "OT", true),
-    URL("信頼できるパワーユーザーのみがアクセスできるURL", "URL", true),
-    SC("内部のセキュリティ制御を通過", "SC", true),
-    EC("外部制御により防御された攻撃", "EC", true),
-    FP("誤検知", "FP", true);
+import java.util.List;
 
-    private String label;
-    private String value;
-    private boolean requiredNote;
+import com.contrastsecurity.statusmanagetool.model.Filter;
 
-    private SubStatusEnum(String label, String value, boolean requiredNote) {
-        this.label = label;
-        this.value = value;
-        this.requiredNote = requiredNote;
+public class FilterJson extends ContrastJson {
+    private List<Filter> filters;
+
+    public List<Filter> getFilters() {
+        return filters;
     }
 
-    public String getLabel() {
-        return label;
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    public boolean isRequiredNote() {
-        return requiredNote;
+    public void setFilters(List<Filter> filters) {
+        this.filters = filters;
     }
 
 }

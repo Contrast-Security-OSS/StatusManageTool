@@ -25,6 +25,7 @@ package com.contrastsecurity.statusmanagetool;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -47,6 +48,7 @@ import com.contrastsecurity.statusmanagetool.api.ApiKeyApi;
 import com.contrastsecurity.statusmanagetool.api.GroupCreateApi;
 import com.contrastsecurity.statusmanagetool.api.GroupsApi;
 import com.contrastsecurity.statusmanagetool.api.OrganizationsApi;
+import com.contrastsecurity.statusmanagetool.api.SubStatusOTAliasApi;
 import com.contrastsecurity.statusmanagetool.api.TraceApi;
 import com.contrastsecurity.statusmanagetool.api.TracesApi;
 import com.contrastsecurity.statusmanagetool.exception.ApiException;
@@ -54,6 +56,7 @@ import com.contrastsecurity.statusmanagetool.model.ContrastGroup;
 import com.contrastsecurity.statusmanagetool.model.Filter;
 import com.contrastsecurity.statusmanagetool.model.ItemForVulnerability;
 import com.contrastsecurity.statusmanagetool.model.Organization;
+import com.contrastsecurity.statusmanagetool.model.SubStatusOTAlias;
 import com.contrastsecurity.statusmanagetool.model.Trace;
 import com.contrastsecurity.statusmanagetool.preference.PreferenceConstants;
 
@@ -67,6 +70,7 @@ public class TracesGetWithProgress implements IRunnableWithProgress {
     private Date frDetectedDate;
     private Date toDetectedDate;
     private List<ItemForVulnerability> allVulns;
+    private List<SubStatusOTAlias> aliasList;
     private Set<Filter> ruleNameFilterSet = new LinkedHashSet<Filter>();
     private Set<Filter> severityFilterSet = new LinkedHashSet<Filter>();
     private Set<Filter> applicationFilterSet = new LinkedHashSet<Filter>();
@@ -85,9 +89,10 @@ public class TracesGetWithProgress implements IRunnableWithProgress {
         this.frDetectedDate = frDate;
         this.toDetectedDate = toDate;
         this.allVulns = new ArrayList<ItemForVulnerability>();
+        this.aliasList = new ArrayList<SubStatusOTAlias>();
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
     public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
         SubMonitor subMonitor = SubMonitor.convert(monitor).setWorkRemaining(100);
@@ -227,6 +232,12 @@ public class TracesGetWithProgress implements IRunnableWithProgress {
         }
         for (Organization org : this.orgs) {
             try {
+                Api subStatusOTAliasApi = new SubStatusOTAliasApi(this.shell, this.ps, org);
+                subStatusOTAliasApi.setIgnoreStatusCodes(new ArrayList(Arrays.asList(404)));
+                SubStatusOTAlias alias = (SubStatusOTAlias) subStatusOTAliasApi.get();
+                if (alias != null) {
+                    this.aliasList.add(alias);
+                }
                 monitor.setTaskName(String.format("%s 脆弱性一覧の読み込み...", org.getName()));
                 monitor.subTask("脆弱性一覧を読み込んでいます...");
                 List<ItemForVulnerability> allTraces = new ArrayList<ItemForVulnerability>();
@@ -318,6 +329,10 @@ public class TracesGetWithProgress implements IRunnableWithProgress {
 
     public List<Organization> getOrgs() {
         return this.orgs;
+    }
+
+    public List<SubStatusOTAlias> getAliasList() {
+        return aliasList;
     }
 
 }

@@ -59,6 +59,7 @@ import com.contrastsecurity.statusmanagetool.json.PendingStatusApprovalJson;
 import com.contrastsecurity.statusmanagetool.model.Filter;
 import com.contrastsecurity.statusmanagetool.model.ItemForVulnerability;
 import com.contrastsecurity.statusmanagetool.model.Organization;
+import com.contrastsecurity.statusmanagetool.model.SubStatusOTAlias;
 import com.contrastsecurity.statusmanagetool.preference.OtherPreferencePage;
 import com.contrastsecurity.statusmanagetool.preference.PreferenceConstants;
 
@@ -384,6 +385,9 @@ public class VulTabItem extends CTabItem implements PropertyChangeListener {
                 try {
                     progDialog.run(true, true, progress);
                     traces = progress.getAllVulns();
+                    for (SubStatusOTAlias alias : progress.getAliasList()) {
+                        toolShell.getMain().putOrgOTAlias(alias);
+                    }
                     Collections.sort(traces, new Comparator<ItemForVulnerability>() {
                         @Override
                         public int compare(ItemForVulnerability e1, ItemForVulnerability e2) {
@@ -660,7 +664,7 @@ public class VulTabItem extends CTabItem implements PropertyChangeListener {
         statusChangeBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                StatusMarkDialog statusMarkDialog = new StatusMarkDialog(toolShell, ps);
+                StatusMarkDialog statusMarkDialog = new StatusMarkDialog(toolShell, ps, toolShell.getMain().getValidOrganizations());
                 int result = statusMarkDialog.open();
                 if (IDialogConstants.OK_ID != result) {
                     return;

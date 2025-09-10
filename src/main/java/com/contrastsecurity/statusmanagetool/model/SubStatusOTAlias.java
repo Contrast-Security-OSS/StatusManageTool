@@ -21,35 +21,40 @@
  * 
  */
 
-package com.contrastsecurity.statusmanagetool;
+package com.contrastsecurity.statusmanagetool.model;
 
-public enum SubStatusEnum {
-    OT("その他", "OT", true),
-    URL("信頼できるパワーユーザーのみがアクセスできるURL", "URL", true),
-    SC("内部のセキュリティ制御を通過", "SC", true),
-    EC("外部制御により防御された攻撃", "EC", true),
-    FP("誤検知", "FP", true);
-
+public class SubStatusOTAlias {
+    private String substatus;
     private String label;
-    private String value;
-    private boolean requiredNote;
+    private String organization_uuid;
 
-    private SubStatusEnum(String label, String value, boolean requiredNote) {
-        this.label = label;
-        this.value = value;
-        this.requiredNote = requiredNote;
+    public String getSubstatus() {
+        return substatus;
+    }
+
+    public void setSubstatus(String substatus) {
+        this.substatus = substatus;
     }
 
     public String getLabel() {
         return label;
     }
 
-    public String getValue() {
-        return value;
+    public void setLabel(String label) {
+        this.label = label;
     }
 
-    public boolean isRequiredNote() {
-        return requiredNote;
+    public String getOrganization_uuid() {
+        return organization_uuid;
+    }
+
+    public void setOrganization_uuid(String organization_uuid) {
+        this.organization_uuid = organization_uuid;
+    }
+
+    @Override
+    public String toString() {
+        return this.label;
     }
 
 }
