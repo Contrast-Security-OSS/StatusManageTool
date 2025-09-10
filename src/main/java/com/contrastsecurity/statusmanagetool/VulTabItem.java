@@ -372,13 +372,7 @@ public class VulTabItem extends CTabItem implements PropertyChangeListener {
         traceLoadBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                filteredTraces.clear();
-                traceTable.clearAll();
-                traceTable.removeAll();
-                for (Button button : checkBoxList) {
-                    button.dispose();
-                }
-                checkBoxList.clear();
+                uiReset();
                 Date[] frToDate = getFrToDetectedDate();
                 if (frToDate.length != 2) {
                     MessageDialog.openError(toolShell, "脆弱性一覧の取得", "取得期間を設定してください。");
@@ -884,6 +878,7 @@ public class VulTabItem extends CTabItem implements PropertyChangeListener {
             button.dispose();
         }
         checkBoxList.clear();
+        support.firePropertyChange("uiReset", null, null);
     }
 
     private void detectedDateLabelUpdate() {
@@ -1125,7 +1120,6 @@ public class VulTabItem extends CTabItem implements PropertyChangeListener {
             traceLoadBtn.setEnabled((Boolean) event.getNewValue());
         } else if ("validOrgChanged".equals(event.getPropertyName())) {
             uiReset();
-            support.firePropertyChange("uiReset", null, null);
         } else if ("traceFilter".equals(event.getPropertyName())) {
             @SuppressWarnings("unchecked")
             Map<FilterEnum, Set<Filter>> filterMap = (Map<FilterEnum, Set<Filter>>) event.getNewValue();
