@@ -33,6 +33,7 @@ public class Organization {
     private String apikey;
     private boolean locked;
     private String remarks;
+    private List<Filter> statusFilters;
     private boolean valid;
 
     public String getName() {
@@ -73,6 +74,14 @@ public class Organization {
 
     public void setRemarks(String remarks) {
         this.remarks = remarks;
+    }
+
+    public List<Filter> getStatusFilters() {
+        return statusFilters;
+    }
+
+    public void setStatusFilters(List<Filter> statusFilters) {
+        this.statusFilters = statusFilters;
     }
 
     public boolean isValid() {

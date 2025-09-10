@@ -227,7 +227,7 @@ public class TracesGetWithProgress implements IRunnableWithProgress {
         }
         for (Organization org : this.orgs) {
             try {
-                monitor.setTaskName(String.format("%s 脆弱性一覧の読み込み...", org.getName())); //$NON-NLS-1$
+                monitor.setTaskName(String.format("%s 脆弱性一覧の読み込み...", org.getName()));
                 monitor.subTask("脆弱性一覧を読み込んでいます...");
                 List<ItemForVulnerability> allTraces = new ArrayList<ItemForVulnerability>();
                 Api tracesApi = new TracesApi(this.shell, this.ps, org, this.vulnType, this.detectType, frDetectedDate, toDetectedDate, 0);
