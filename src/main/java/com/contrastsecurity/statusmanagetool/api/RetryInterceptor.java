@@ -33,17 +33,28 @@ public class RetryInterceptor implements Interceptor {
                 if (response.isSuccessful()) {
                     return response;
                 }
+                if (shouldRetry(response.code()) && retryCount < maxRetries) {
+                    logger.warn("Request failed with status code {}, retrying... ({}/{})", response.code(), (retryCount + 1), maxRetries);
+                    response.close();
+                    retryCount++;
+                    Thread.sleep(retryDelayMillis);
+                    continue;
+                }
+                return response;
             } catch (IOException e) {
                 lastException = e;
                 logger.warn(request.url());
                 logger.warn("Request failed, retrying by interceptor... (" + (retryCount + 1) + "/" + maxRetries + ")");
                 // System.err.println("Request failed, retrying... (" + (i + 1) + "/" + maxRetries + ")");
-                try {
-                    Thread.sleep(retryDelayMillis);
-                } catch (InterruptedException ie) {
-                    Thread.currentThread().interrupt();
-                    throw new IOException("Retry interrupted", ie);
-                }
+                // try {
+                // Thread.sleep(retryDelayMillis);
+                // } catch (InterruptedException ie) {
+                // Thread.currentThread().interrupt();
+                // throw new IOException("Retry interrupted", ie);
+                // }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new IOException("Retry interrupted", e);
             }
         }
 
@@ -56,4 +67,7 @@ public class RetryInterceptor implements Interceptor {
         }
     }
 
+    private boolean shouldRetry(int code) {
+        return code == 408 || code == 429 || (code >= 500 && code <= 599);
+    }
 }
