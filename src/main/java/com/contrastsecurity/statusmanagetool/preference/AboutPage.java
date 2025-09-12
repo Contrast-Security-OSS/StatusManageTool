@@ -102,12 +102,13 @@ public class AboutPage extends PreferencePage {
             }
         });
         new Link(licenseGrp, SWT.NONE).setText("- commons-codec 1.11"); //$NON-NLS-1$
+        new Link(licenseGrp, SWT.NONE).setText("- commons-text 1.12.0"); //$NON-NLS-1$
         new Link(licenseGrp, SWT.NONE).setText("- commons-csv 1.8"); //$NON-NLS-1$
         new Link(licenseGrp, SWT.NONE).setText("- commons-exec 1.3"); //$NON-NLS-1$
         new Link(licenseGrp, SWT.NONE).setText("- commons-io 2.8.0"); //$NON-NLS-1$
         new Link(licenseGrp, SWT.NONE).setText("- commons-lang3 3.4"); //$NON-NLS-1$
         new Link(licenseGrp, SWT.NONE).setText("- commons-logging 1.2"); //$NON-NLS-1$
-        new Link(licenseGrp, SWT.NONE).setText("- gson 2.8.6"); //$NON-NLS-1$
+        new Link(licenseGrp, SWT.NONE).setText("- gson 2.10.1"); //$NON-NLS-1$
         new Link(licenseGrp, SWT.NONE).setText("- httpclient 4.5.13"); //$NON-NLS-1$
         new Link(licenseGrp, SWT.NONE).setText("- httpcore 4.4.13"); //$NON-NLS-1$
         new Link(licenseGrp, SWT.NONE).setText("- jasypt 1.9.3"); //$NON-NLS-1$
@@ -115,7 +116,6 @@ public class AboutPage extends PreferencePage {
         new Link(licenseGrp, SWT.NONE).setText("- okhttp-urlconnection 4.10.0"); //$NON-NLS-1$
         new Link(licenseGrp, SWT.NONE).setText("- log4j-core 2.17.2"); //$NON-NLS-1$
         new Link(licenseGrp, SWT.NONE).setText("- log4j-api 2.17.2"); //$NON-NLS-1$
-        new Link(licenseGrp, SWT.NONE).setText("- snakeyaml 1.16"); //$NON-NLS-1$
 
         Link eplLicenseLinkLbl = new Link(licenseGrp, SWT.NONE);
         eplLicenseLinkLbl.setText("This software includes the work that is distributed in the <a>Eclipse Public License 1.0</a>"); //$NON-NLS-1$
@@ -130,12 +130,13 @@ public class AboutPage extends PreferencePage {
                 }
             }
         });
-        new Link(licenseGrp, SWT.NONE).setText("- commands 3.3.0-I20070605-0010"); //$NON-NLS-1$
-        new Link(licenseGrp, SWT.NONE).setText("- common 3.3.0-v20070426"); //$NON-NLS-1$
-        new Link(licenseGrp, SWT.NONE).setText("- ide 3.3.0-I20070620"); //$NON-NLS-1$
-        new Link(licenseGrp, SWT.NONE).setText("- workbench 3.3.0-I20070608-1100"); //$NON-NLS-1$
-        new Link(licenseGrp, SWT.NONE).setText("- jface 3.3.0-I20070606-0010"); //$NON-NLS-1$
-        new Link(licenseGrp, SWT.NONE).setText("- org.eclipse.swt.win32.win32.x86 4.3"); //$NON-NLS-1$
+        new Link(licenseGrp, SWT.NONE).setText("- commands 3.11.100"); //$NON-NLS-1$
+        new Link(licenseGrp, SWT.NONE).setText("- common 3.18.100"); //$NON-NLS-1$
+        new Link(licenseGrp, SWT.NONE).setText("- ide 3.21.100"); //$NON-NLS-1$
+        new Link(licenseGrp, SWT.NONE).setText("- workbench 3.130.0"); //$NON-NLS-1$
+        new Link(licenseGrp, SWT.NONE).setText("- jface 3.31.0"); //$NON-NLS-1$
+        new Link(licenseGrp, SWT.NONE).setText("- osgi 3.18.500"); //$NON-NLS-1$
+        new Link(licenseGrp, SWT.NONE).setText("- org.eclipse.swt.win32.win32.x86 3.124.100"); //$NON-NLS-1$
 
         Link epl2LicenseLinkLbl = new Link(licenseGrp, SWT.NONE);
         epl2LicenseLinkLbl.setText("This software includes the work that is distributed in the <a>Eclipse Public License 2.0</a>"); //$NON-NLS-1$
@@ -150,7 +151,8 @@ public class AboutPage extends PreferencePage {
                 }
             }
         });
-        new Link(licenseGrp, SWT.NONE).setText("- org.eclipse.swt.cocoa.macosx.x86_64 3.109.0"); //$NON-NLS-1$
+        new Link(licenseGrp, SWT.NONE).setText("- org.eclipse.swt.cocoa.macosx.x86_64 3.124.100"); //$NON-NLS-1$
+        new Link(licenseGrp, SWT.NONE).setText("- org.eclipse.swt.cocoa.macosx.aarch64 3.124.100"); //$NON-NLS-1$
 
         noDefaultAndApplyButton();
         return parent;
