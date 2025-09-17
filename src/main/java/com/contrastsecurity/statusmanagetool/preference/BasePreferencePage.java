@@ -577,14 +577,22 @@ public class BasePreferencePage extends PreferencePage {
             }
         }
 
-        if (ps.getString(PreferenceConstants.IS_SUPERADMIN).equals("true")) {
-            superAdminYes.setSelection(true);
-            stackCompositeLt.topControl = comp1;
-            stackComposite.layout();
-        } else {
+        if (this.authType == AuthType.PASSWORD) {
+            superAdminYes.setEnabled(false);
+            superAdminNo.setEnabled(false);
             superAdminNo.setSelection(true);
             stackCompositeLt.topControl = comp2;
             stackComposite.layout();
+        } else {
+            if (ps.getString(PreferenceConstants.IS_SUPERADMIN).equals("true")) {
+                superAdminYes.setSelection(true);
+                stackCompositeLt.topControl = comp1;
+                stackComposite.layout();
+            } else {
+                superAdminNo.setSelection(true);
+                stackCompositeLt.topControl = comp2;
+                stackComposite.layout();
+            }
         }
 
         superAdminYes.addSelectionListener(new SelectionAdapter() {

@@ -189,6 +189,7 @@ public class Main implements PropertyChangeListener {
             this.ps.setDefault(PreferenceConstants.OPENED_MAIN_TAB_IDX, 0);
             this.ps.setDefault(PreferenceConstants.OPENED_VUL_SUBTAB_IDX, 3);
             if (this.authType == AuthType.PASSWORD) {
+                this.ps.setValue(PreferenceConstants.IS_SUPERADMIN, "false");
                 this.ps.setValue(PreferenceConstants.SERVICE_KEY, "");
             }
         } catch (Exception e) {
