@@ -23,7 +23,7 @@
 
 package com.contrastsecurity.statusmanagetool.exception;
 
-public class TsvCancelException extends TsvException {
+public class TsvCancelException extends CancelException {
 
     private static final long serialVersionUID = 1L;
 

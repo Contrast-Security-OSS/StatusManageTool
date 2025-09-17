@@ -47,6 +47,7 @@ import com.contrastsecurity.statusmanagetool.api.Api;
 import com.contrastsecurity.statusmanagetool.api.OrganizationApi;
 import com.contrastsecurity.statusmanagetool.api.OrganizationForBasicApi;
 import com.contrastsecurity.statusmanagetool.exception.ApiException;
+import com.contrastsecurity.statusmanagetool.exception.CancelException;
 import com.contrastsecurity.statusmanagetool.exception.NonApiException;
 import com.contrastsecurity.statusmanagetool.model.Organization;
 
@@ -158,6 +159,8 @@ public class OrganizationDialog extends Dialog {
                 org.setName(rtnOrg.getName());
                 this.org = org;
             }
+        } catch (CancelException e) {
+            MessageDialog.openWarning(getShell(), "組織の追加", e.getMessage());
         } catch (ApiException e) {
             MessageDialog.openWarning(getShell(), "組織の追加", String.format("TeamServerからエラーが返されました。\r\n%s", e.getMessage()));
         } catch (NonApiException e) {

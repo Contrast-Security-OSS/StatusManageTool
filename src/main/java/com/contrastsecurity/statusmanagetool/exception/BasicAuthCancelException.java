@@ -23,7 +23,7 @@
 
 package com.contrastsecurity.statusmanagetool.exception;
 
-public class BasicAuthCancelException extends BasicAuthException {
+public class BasicAuthCancelException extends CancelException {
 
     private static final long serialVersionUID = 1L;
 

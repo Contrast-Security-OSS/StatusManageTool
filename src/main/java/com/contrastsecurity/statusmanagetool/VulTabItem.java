@@ -53,6 +53,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 import com.contrastsecurity.statusmanagetool.exception.ApiException;
+import com.contrastsecurity.statusmanagetool.exception.CancelException;
 import com.contrastsecurity.statusmanagetool.exception.NonApiException;
 import com.contrastsecurity.statusmanagetool.json.ContrastJson;
 import com.contrastsecurity.statusmanagetool.json.PendingStatusApprovalJson;
@@ -404,18 +405,22 @@ public class VulTabItem extends CTabItem implements PropertyChangeListener {
                         toolShell.getMain().setOrgsForSuperAdminOpe(progress.getOrgs());
                     }
                 } catch (InvocationTargetException e) {
-                    StringWriter stringWriter = new StringWriter();
-                    PrintWriter printWriter = new PrintWriter(stringWriter);
-                    e.printStackTrace(printWriter);
-                    String trace = stringWriter.toString();
-                    logger.error(trace);
                     String errorMsg = e.getTargetException().getMessage();
-                    if (e.getTargetException() instanceof ApiException) {
-                        MessageDialog.openWarning(toolShell, "脆弱性一覧の取得", String.format("TeamServerからエラーが返されました。\r\n%s", errorMsg));
-                    } else if (e.getTargetException() instanceof NonApiException) {
-                        MessageDialog.openError(toolShell, "脆弱性一覧の取得", String.format("想定外のステータスコード: %s\r\nログファイルをご確認ください。", errorMsg));
+                    if (e.getTargetException() instanceof CancelException) {
+                        MessageDialog.openWarning(toolShell, "脆弱性一覧の取得", errorMsg);
                     } else {
-                        MessageDialog.openError(toolShell, "脆弱性一覧の取得", String.format("不明なエラーです。ログファイルをご確認ください。\r\n%s", errorMsg));
+                        StringWriter stringWriter = new StringWriter();
+                        PrintWriter printWriter = new PrintWriter(stringWriter);
+                        e.printStackTrace(printWriter);
+                        String trace = stringWriter.toString();
+                        logger.error(trace);
+                        if (e.getTargetException() instanceof ApiException) {
+                            MessageDialog.openWarning(toolShell, "脆弱性一覧の取得", String.format("TeamServerからエラーが返されました。\r\n%s", errorMsg));
+                        } else if (e.getTargetException() instanceof NonApiException) {
+                            MessageDialog.openError(toolShell, "脆弱性一覧の取得", String.format("想定外のステータスコード: %s\r\nログファイルをご確認ください。", errorMsg));
+                        } else {
+                            MessageDialog.openError(toolShell, "脆弱性一覧の取得", String.format("不明なエラーです。ログファイルをご確認ください。\r\n%s", errorMsg));
+                        }
                     }
                 } catch (InterruptedException e) {
                     e.printStackTrace();
@@ -709,18 +714,22 @@ public class VulTabItem extends CTabItem implements PropertyChangeListener {
                     messageBox.setText("ステータス更新");
                     messageBox.open();
                 } catch (InvocationTargetException e) {
-                    StringWriter stringWriter = new StringWriter();
-                    PrintWriter printWriter = new PrintWriter(stringWriter);
-                    e.printStackTrace(printWriter);
-                    String trace = stringWriter.toString();
-                    logger.error(trace);
                     String errorMsg = e.getTargetException().getMessage();
-                    if (e.getTargetException() instanceof ApiException) {
-                        MessageDialog.openWarning(toolShell, "脆弱性一覧の取得", String.format("TeamServerからエラーが返されました。\r\n%s", errorMsg));
-                    } else if (e.getTargetException() instanceof NonApiException) {
-                        MessageDialog.openError(toolShell, "脆弱性一覧の取得", String.format("想定外のステータスコード: %s\r\nログファイルをご確認ください。", errorMsg));
+                    if (e.getTargetException() instanceof CancelException) {
+                        MessageDialog.openWarning(toolShell, "脆弱性一覧の取得", errorMsg);
                     } else {
-                        MessageDialog.openError(toolShell, "脆弱性一覧の取得", String.format("不明なエラーです。ログファイルをご確認ください。\r\n%s", errorMsg));
+                        StringWriter stringWriter = new StringWriter();
+                        PrintWriter printWriter = new PrintWriter(stringWriter);
+                        e.printStackTrace(printWriter);
+                        String trace = stringWriter.toString();
+                        logger.error(trace);
+                        if (e.getTargetException() instanceof ApiException) {
+                            MessageDialog.openWarning(toolShell, "脆弱性一覧の取得", String.format("TeamServerからエラーが返されました。\r\n%s", errorMsg));
+                        } else if (e.getTargetException() instanceof NonApiException) {
+                            MessageDialog.openError(toolShell, "脆弱性一覧の取得", String.format("想定外のステータスコード: %s\r\nログファイルをご確認ください。", errorMsg));
+                        } else {
+                            MessageDialog.openError(toolShell, "脆弱性一覧の取得", String.format("不明なエラーです。ログファイルをご確認ください。\r\n%s", errorMsg));
+                        }
                     }
                 } catch (InterruptedException e) {
                     e.printStackTrace();
@@ -778,18 +787,22 @@ public class VulTabItem extends CTabItem implements PropertyChangeListener {
                     messageBox.setText("保留中ステータスの承認");
                     messageBox.open();
                 } catch (InvocationTargetException e) {
-                    StringWriter stringWriter = new StringWriter();
-                    PrintWriter printWriter = new PrintWriter(stringWriter);
-                    e.printStackTrace(printWriter);
-                    String trace = stringWriter.toString();
-                    logger.error(trace);
                     String errorMsg = e.getTargetException().getMessage();
-                    if (e.getTargetException() instanceof ApiException) {
-                        MessageDialog.openWarning(toolShell, "監査ログの取得", String.format("TeamServerからエラーが返されました。\r\n%s", errorMsg));
-                    } else if (e.getTargetException() instanceof NonApiException) {
-                        MessageDialog.openError(toolShell, "監査ログの取得", String.format("想定外のステータスコード: %s\r\nログファイルをご確認ください。", errorMsg));
+                    if (e.getTargetException() instanceof CancelException) {
+                        MessageDialog.openWarning(toolShell, "保留中ステータスの承認", errorMsg);
                     } else {
-                        MessageDialog.openError(toolShell, "監査ログの取得", String.format("不明なエラーです。ログファイルをご確認ください。\r\n%s", errorMsg));
+                        StringWriter stringWriter = new StringWriter();
+                        PrintWriter printWriter = new PrintWriter(stringWriter);
+                        e.printStackTrace(printWriter);
+                        String trace = stringWriter.toString();
+                        logger.error(trace);
+                        if (e.getTargetException() instanceof ApiException) {
+                            MessageDialog.openWarning(toolShell, "保留中ステータスの承認", String.format("TeamServerからエラーが返されました。\r\n%s", errorMsg));
+                        } else if (e.getTargetException() instanceof NonApiException) {
+                            MessageDialog.openError(toolShell, "保留中ステータスの承認", String.format("想定外のステータスコード: %s\r\nログファイルをご確認ください。", errorMsg));
+                        } else {
+                            MessageDialog.openError(toolShell, "保留中ステータスの承認", String.format("不明なエラーです。ログファイルをご確認ください。\r\n%s", errorMsg));
+                        }
                     }
                 } catch (InterruptedException e) {
                     e.printStackTrace();
@@ -853,18 +866,22 @@ public class VulTabItem extends CTabItem implements PropertyChangeListener {
                     messageBox.setText("保留中ステータスの拒否");
                     messageBox.open();
                 } catch (InvocationTargetException e) {
-                    StringWriter stringWriter = new StringWriter();
-                    PrintWriter printWriter = new PrintWriter(stringWriter);
-                    e.printStackTrace(printWriter);
-                    String trace = stringWriter.toString();
-                    logger.error(trace);
                     String errorMsg = e.getTargetException().getMessage();
-                    if (e.getTargetException() instanceof ApiException) {
-                        MessageDialog.openWarning(toolShell, "監査ログの取得", String.format("TeamServerからエラーが返されました。\r\n%s", errorMsg));
-                    } else if (e.getTargetException() instanceof NonApiException) {
-                        MessageDialog.openError(toolShell, "監査ログの取得", String.format("想定外のステータスコード: %s\r\nログファイルをご確認ください。", errorMsg));
+                    if (e.getTargetException() instanceof CancelException) {
+                        MessageDialog.openWarning(toolShell, "保留中ステータスの承認", errorMsg);
                     } else {
-                        MessageDialog.openError(toolShell, "監査ログの取得", String.format("不明なエラーです。ログファイルをご確認ください。\r\n%s", errorMsg));
+                        StringWriter stringWriter = new StringWriter();
+                        PrintWriter printWriter = new PrintWriter(stringWriter);
+                        e.printStackTrace(printWriter);
+                        String trace = stringWriter.toString();
+                        logger.error(trace);
+                        if (e.getTargetException() instanceof ApiException) {
+                            MessageDialog.openWarning(toolShell, "保留中ステータスの承認", String.format("TeamServerからエラーが返されました。\r\n%s", errorMsg));
+                        } else if (e.getTargetException() instanceof NonApiException) {
+                            MessageDialog.openError(toolShell, "保留中ステータスの承認", String.format("想定外のステータスコード: %s\r\nログファイルをご確認ください。", errorMsg));
+                        } else {
+                            MessageDialog.openError(toolShell, "保留中ステータスの承認", String.format("不明なエラーです。ログファイルをご確認ください。\r\n%s", errorMsg));
+                        }
                     }
                 } catch (InterruptedException e) {
                     e.printStackTrace();
