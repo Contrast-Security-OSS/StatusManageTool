@@ -391,15 +391,6 @@ public abstract class Api {
                 });
                 throw tsve;
             }
-        } else {
-            for (int cnt = 0; cnt < this.authRetryMax; cnt++) {
-                try {
-                    tsvCheck(cnt);
-                    break;
-                } catch (TsvFailureException tfe) {
-                    continue;
-                }
-            }
         }
         if (ps.getString(PreferenceConstants.RETRY_METHOD).equals("trycatch")) {
             int maxRetries = Integer.parseInt(this.ps.getString(PreferenceConstants.MAX_RETRIES));
@@ -463,15 +454,6 @@ public abstract class Api {
                     }
                 });
                 throw tsve;
-            }
-        } else {
-            for (int cnt = 0; cnt < this.authRetryMax; cnt++) {
-                try {
-                    tsvCheck(cnt);
-                    break;
-                } catch (TsvFailureException tfe) {
-                    continue;
-                }
             }
         }
         String response = this.getResponse(HttpMethod.POST);
