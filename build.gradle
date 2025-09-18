@@ -57,7 +57,7 @@ task copyToLib(type: Copy) {
 jar {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     archiveBaseName = 'StatusManageTool'
-    archiveVersion = '0.0.1'
+    archiveVersion = '0.0.2'
     exclude 'META-INF/*.RSA', 'META-INF/*.SF','META-INF/*.DSA' 
     manifest {
         attributes 'Implementation-Title': 'Gradle Quickstart'
