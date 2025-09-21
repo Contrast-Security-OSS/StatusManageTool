@@ -50,7 +50,6 @@ public class StoryApi extends Api {
 
     @Override
     protected Object convert(String response) {
-        System.out.println(response);
         Gson gson = new Gson();
         Type storyType = new TypeToken<StoryJson>() {
         }.getType();

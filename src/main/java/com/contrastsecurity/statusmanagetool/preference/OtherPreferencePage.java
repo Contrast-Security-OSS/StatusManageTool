@@ -46,8 +46,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
 
-import com.contrastsecurity.statusmanagetool.Messages;
-
 public class OtherPreferencePage extends PreferencePage {
 
     private Combo termStartMonthCombo;
@@ -59,6 +57,7 @@ public class OtherPreferencePage extends PreferencePage {
     private Button tryCatchBtn;
     private Text maxRetriesTxt;
     private Text retryIntervalTxt;
+    private Text traceSleepTxt;
 
     public OtherPreferencePage() {
         super("その他設定");
@@ -163,6 +162,27 @@ public class OtherPreferencePage extends PreferencePage {
             }
         });
 
+        Group ctrlGrp = new Group(composite, SWT.NONE);
+        GridLayout proxyGrpLt = new GridLayout(2, false);
+        proxyGrpLt.marginWidth = 15;
+        proxyGrpLt.horizontalSpacing = 10;
+        ctrlGrp.setLayout(proxyGrpLt);
+        GridData proxyGrpGrDt = new GridData(GridData.FILL_HORIZONTAL);
+        // proxyGrpGrDt.horizontalSpan = 4;
+        ctrlGrp.setLayoutData(proxyGrpGrDt);
+        ctrlGrp.setText("スリープ制御（ミリ秒）");
+
+        // ========== 脆弱性取得ごとスリープ ========== //
+        new Label(ctrlGrp, SWT.LEFT).setText("脆弱性取得間隔スリープ：");
+        traceSleepTxt = new Text(ctrlGrp, SWT.BORDER);
+        traceSleepTxt.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+        traceSleepTxt.setText(ps.getString(PreferenceConstants.SLEEP_TRACE));
+        traceSleepTxt.addListener(SWT.FocusIn, new Listener() {
+            public void handleEvent(Event e) {
+                traceSleepTxt.selectAll();
+            }
+        });
+
         Composite buttonGrp = new Composite(parent, SWT.NONE);
         GridLayout buttonGrpLt = new GridLayout(2, false);
         buttonGrpLt.marginHeight = 15;
@@ -191,6 +211,7 @@ public class OtherPreferencePage extends PreferencePage {
                 tryCatchBtn.setSelection(false);
                 maxRetriesTxt.setText(ps.getDefaultString(PreferenceConstants.MAX_RETRIES));
                 retryIntervalTxt.setText(ps.getDefaultString(PreferenceConstants.RETRY_INTERVAL));
+                traceSleepTxt.setText(ps.getDefaultString(PreferenceConstants.SLEEP_TRACE));
             }
         });
 
@@ -231,6 +252,13 @@ public class OtherPreferencePage extends PreferencePage {
                 errors.add("・リトライ間隔（ミリ秒）は数値を指定してください。");
             }
         }
+        if (this.traceSleepTxt.getText().isEmpty()) {
+            errors.add("・脆弱性取得間隔スリープを指定してください。");
+        } else {
+            if (!StringUtils.isNumeric(this.traceSleepTxt.getText())) {
+                errors.add("・脆弱性取得間隔スリープは数値を指定してください。");
+            }
+        }
         if (!errors.isEmpty()) {
             MessageDialog.openError(getShell(), "その他設定", String.join("\r\n", errors));
             return false;
@@ -251,6 +279,7 @@ public class OtherPreferencePage extends PreferencePage {
                 ps.setValue(PreferenceConstants.RETRY_METHOD, "trycatch");
             }
             ps.setValue(PreferenceConstants.RETRY_INTERVAL, this.retryIntervalTxt.getText());
+            ps.setValue(PreferenceConstants.SLEEP_TRACE, this.traceSleepTxt.getText());
         }
         return true;
     }

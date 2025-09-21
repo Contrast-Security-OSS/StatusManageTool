@@ -63,6 +63,7 @@ public class PreferenceConstants {
     public static final String TERM_START_MONTH = new String("com.contrastsecurity.vulnstatusmanagetool.term_start_month"); //$NON-NLS-1$
     public static final String START_WEEKDAY = new String("com.contrastsecurity.vulnstatusmanagetool.start_weekday"); //$NON-NLS-1$
     public static final String TRACE_DETECTED_DATE_FILTER = new String("com.contrastsecurity.vulnstatusmanagetool.trace_detected_date_filter"); //$NON-NLS-1$
+    public static final String SLEEP_TRACE = new String("com.contrastsecurity.vulnstatusmanagetool.sleep_trace");
 
     public static final String OPENED_MAIN_TAB_IDX = new String("com.contrastsecurity.vulnstatusmanagetool.opened_main_tab_idx"); //$NON-NLS-1$
     public static final String OPENED_VUL_SUBTAB_IDX = new String("com.contrastsecurity.vulnstatusmanagetool.opened_vul_subtab_idx"); //$NON-NLS-1$

@@ -24,6 +24,7 @@ import java.util.stream.IntStream;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
@@ -87,6 +88,7 @@ public class VulTabItem extends CTabItem implements PropertyChangeListener {
     private Button firstDetectBtn;
     private Button lastDetectBtn;
     private List<Button> traceDetectedRadios = new ArrayList<Button>();
+    private Button traceAllTerm;
     private Button traceTermHalf1st;
     private Button traceTermHalf2nd;
     private Button traceTerm30days;
@@ -194,12 +196,25 @@ public class VulTabItem extends CTabItem implements PropertyChangeListener {
         }
 
         Composite detectTermGrp = new Composite(detectGrp, SWT.NONE);
-        detectTermGrp.setLayout(new GridLayout(10, false));
+        detectTermGrp.setLayout(new GridLayout(11, false));
         GridData detectTermGrpGrDt = new GridData(GridData.FILL_HORIZONTAL);
         detectTermGrp.setLayoutData(detectTermGrpGrDt);
 
         new Label(detectTermGrp, SWT.LEFT).setText("取得期間：");
         // =============== 取得期間選択ラジオボタン ===============
+        // 全期間
+        traceAllTerm = new Button(detectTermGrp, SWT.RADIO);
+        traceAllTerm.setText("全期間");
+        traceDetectedRadios.add(traceAllTerm);
+        traceAllTerm.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                frDetectedDate = null;
+                toDetectedDate = null;
+                detectedDateLabelUpdate();
+            }
+
+        });
         // 上半期
         traceTermHalf1st = new Button(detectTermGrp, SWT.RADIO);
         traceTermHalf1st.setText("上半期");
@@ -406,7 +421,7 @@ public class VulTabItem extends CTabItem implements PropertyChangeListener {
                     }
                 } catch (InvocationTargetException e) {
                     String errorMsg = e.getTargetException().getMessage();
-                    if (e.getTargetException() instanceof CancelException) {
+                    if (e.getTargetException() instanceof CancelException || e.getTargetException() instanceof OperationCanceledException) {
                         MessageDialog.openWarning(toolShell, "脆弱性一覧の取得", errorMsg);
                     } else {
                         StringWriter stringWriter = new StringWriter();
@@ -1016,35 +1031,39 @@ public class VulTabItem extends CTabItem implements PropertyChangeListener {
         Date frDate = null;
         Date toDate = null;
         switch (idx) {
-            case 0: // 上半期
+            case 0: // 全期間
+                frDate = null;
+                toDate = null;
+                break;
+            case 1: // 上半期
                 frDate = this.traceDetectedFilterMap.get(TraceDetectedDateFilterEnum.HALF_1ST_START);
                 toDate = this.traceDetectedFilterMap.get(TraceDetectedDateFilterEnum.HALF_1ST_END);
                 break;
-            case 1: // 下半期
+            case 2: // 下半期
                 frDate = this.traceDetectedFilterMap.get(TraceDetectedDateFilterEnum.HALF_2ND_START);
                 toDate = this.traceDetectedFilterMap.get(TraceDetectedDateFilterEnum.HALF_2ND_END);
                 break;
-            case 2: // 30days
+            case 3: // 30days
                 frDate = this.traceDetectedFilterMap.get(TraceDetectedDateFilterEnum.BEFORE_30_DAYS);
                 toDate = this.traceDetectedFilterMap.get(TraceDetectedDateFilterEnum.TODAY);
                 break;
-            case 3: // Yesterday
+            case 4: // Yesterday
                 frDate = this.traceDetectedFilterMap.get(TraceDetectedDateFilterEnum.YESTERDAY);
                 toDate = this.traceDetectedFilterMap.get(TraceDetectedDateFilterEnum.YESTERDAY);
                 break;
-            case 4: // Today
+            case 5: // Today
                 frDate = this.traceDetectedFilterMap.get(TraceDetectedDateFilterEnum.TODAY);
                 toDate = this.traceDetectedFilterMap.get(TraceDetectedDateFilterEnum.TODAY);
                 break;
-            case 5: // LastWeek
+            case 6: // LastWeek
                 frDate = this.traceDetectedFilterMap.get(TraceDetectedDateFilterEnum.LAST_WEEK_START);
                 toDate = this.traceDetectedFilterMap.get(TraceDetectedDateFilterEnum.LAST_WEEK_END);
                 break;
-            case 6: // ThisWeek
+            case 7: // ThisWeek
                 frDate = this.traceDetectedFilterMap.get(TraceDetectedDateFilterEnum.THIS_WEEK_START);
                 toDate = this.traceDetectedFilterMap.get(TraceDetectedDateFilterEnum.THIS_WEEK_END);
                 break;
-            case 7: // Specify
+            case 8: // Specify
                 if (frDetectedDate == null || toDetectedDate == null) {
                     return new Date[] {};
                 }

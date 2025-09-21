@@ -179,6 +179,7 @@ public class Main implements PropertyChangeListener {
             this.ps.setDefault(PreferenceConstants.RETRY_METHOD, "interceptor"); // interceptor or trycatch
             this.ps.setDefault(PreferenceConstants.MAX_RETRIES, 3);
             this.ps.setDefault(PreferenceConstants.RETRY_INTERVAL, 1000);
+            this.ps.setDefault(PreferenceConstants.SLEEP_TRACE, 0);
 
             this.ps.setDefault(PreferenceConstants.VULN_CHOICE, VulnTypeEnum.ALL.name());
             this.ps.setDefault(PreferenceConstants.DETECT_CHOICE, "FIRST");

@@ -53,7 +53,7 @@ public class TracesApi extends Api {
     private Date startDate;
     private Date endDate;
     private int offset;
-    private final DateTimeFormatter datetimeformatter = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss"); //$NON-NLS-1$
+    private final DateTimeFormatter datetimeformatter = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
 
     public TracesApi(Shell shell, IPreferenceStore ps, Organization org, VulnTypeEnum vulnType, DetectTypeEnum detectType, Date startDate, Date endDate, int offset) {
         super(shell, ps, org);
@@ -67,14 +67,17 @@ public class TracesApi extends Api {
     @Override
     protected String getUrl() {
         String orgId = this.org.getOrganization_uuid();
-        return String.format("%s/api/ng/organizations/%s/orgtraces/ui?expand=application&offset=%d&limit=%d&sort=-severity", this.contrastUrl, orgId, this.offset, LIMIT); //$NON-NLS-1$
+        return String.format("%s/api/ng/organizations/%s/orgtraces/ui?expand=application&offset=%d&limit=%d&sort=-severity", this.contrastUrl, orgId, this.offset, LIMIT);
     }
 
     @Override
     protected RequestBody getBody() throws Exception {
-        MediaType mediaTypeJson = MediaType.parse("application/json; charset=UTF-8"); //$NON-NLS-1$
-        String json = String.format("{\"quickFilter\":\"%s\",\"timestampFilter\":\"%s\",\"startDate\":\"%s\",\"endDate\":\"%s\"}", this.vulnType.name(), this.detectType.name(), //$NON-NLS-1$
-                this.startDate.getTime(), this.endDate.getTime());
+        MediaType mediaTypeJson = MediaType.parse("application/json; charset=UTF-8");
+        String json = String.format("{\"quickFilter\":\"%s\",\"licensedOnly\":true}", this.vulnType.name());
+        if (startDate != null && endDate != null) {
+            json = String.format("{\"quickFilter\":\"%s\",\"licensedOnly\":true,\"timestampFilter\":\"%s\",\"startDate\":\"%s\",\"endDate\":\"%s\"}", this.vulnType.name(),
+                    this.detectType.name(), this.startDate.getTime(), this.endDate.getTime());
+        }
         return RequestBody.create(json, mediaTypeJson);
     }
 

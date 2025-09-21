@@ -107,6 +107,7 @@ public class TracesGetWithProgress implements IRunnableWithProgress {
     @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
     public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+        int sleepTrace = this.ps.getInt(PreferenceConstants.SLEEP_TRACE);
         SubMonitor subMonitor = SubMonitor.convert(monitor).setWorkRemaining(100);
         monitor.setTaskName("脆弱性一覧の読み込み...");
         boolean isSuperAdmin = this.ps.getBoolean(PreferenceConstants.IS_SUPERADMIN);
@@ -314,6 +315,9 @@ public class TracesGetWithProgress implements IRunnableWithProgress {
                             }
                         }
                     }
+                    if (sleepTrace > 0) {
+                        Thread.sleep(sleepTrace);
+                    }
                 }
                 allTraces.addAll(tmpTraces);
                 boolean traceIncompleteFlg = false;
@@ -335,6 +339,50 @@ public class TracesGetWithProgress implements IRunnableWithProgress {
                         traceProcessCount++;
                         monitor.setTaskName(String.format("%s 脆弱性一覧の読み込み...(%d/%d)", org.getName(), traceProcessCount, totalTracesCount)); //$NON-NLS-1$
                         monitor.subTask(trace.getTitle());
+                        Api storyApi = new StoryApi(this.shell, this.ps, org, vul.getVulnerability().getUuid());
+                        Story story = null;
+                        try {
+                            story = (Story) storyApi.get();
+                        } catch (Exception e) {
+                            this.shell.getDisplay().syncExec(new Runnable() {
+                                public void run() {
+                                    if (!MessageDialog.openConfirm(shell, Messages.getString("vulgetwithprogress.message.dialog.title"), //$NON-NLS-1$
+                                            Messages.getString("vulgetwithprogress.message.dialog.overview.get.error.message"))) { //$NON-NLS-1$
+                                        monitor.setCanceled(true);
+                                    }
+                                }
+                            });
+                            Risk risk = new Risk();
+                            risk.setText(Messages.getString("vulgetwithprogress.detail.header.get.error")); //$NON-NLS-1$
+                            story = new Story();
+                            story.setRisk(risk);
+                            story.setChapters(new ArrayList<Chapter>());
+                        }
+                        vul.getVulnerability().setStory(story);
+
+                        Api httpRequestApi = new HttpRequestApi(this.shell, this.ps, org, vul.getVulnerability().getUuid());
+                        HttpRequest httpRequest = (HttpRequest) httpRequestApi.get();
+                        vul.getVulnerability().setHttpRequest(httpRequest);
+
+                        Api eventSummaryApi = new EventSummaryApi(this.shell, this.ps, org, vul.getVulnerability().getUuid());
+                        List<EventSummary> eventSummaries = (List<EventSummary>) eventSummaryApi.get();
+                        vul.getVulnerability().setEventSummaries(eventSummaries);
+                        for (EventSummary es : eventSummaries) {
+                            if (es.getCollapsedEvents() != null && es.getCollapsedEvents().isEmpty()) {
+                                Api eventDetailApi = new EventDetailApi(this.shell, this.ps, org, vul.getVulnerability().getUuid(), es.getId());
+                                EventDetail ed = (EventDetail) eventDetailApi.get();
+                                vul.getVulnerability().addEventDetail(ed);
+                            } else {
+                                for (CollapsedEventSummary ce : es.getCollapsedEvents()) {
+                                    Api eventDetailApi = new EventDetailApi(this.shell, this.ps, org, vul.getVulnerability().getUuid(), ce.getId());
+                                    EventDetail ed = (EventDetail) eventDetailApi.get();
+                                    vul.getVulnerability().addEventDetail(ed);
+                                }
+                            }
+                        }
+                        if (sleepTrace > 0) {
+                            Thread.sleep(sleepTrace);
+                        }
                     }
                     allTraces.addAll(tmpTraces);
                     traceIncompleteFlg = totalTracesCount > allTraces.size();
