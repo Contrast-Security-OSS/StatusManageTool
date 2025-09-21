@@ -2,7 +2,7 @@
 
 JAVA_HOME="/Library/Java/JavaVirtualMachines/jdk-17.jdk/Contents/Home"
 APP_NAME="StatusManageTool"
-APP_VERSION="0.0.2"
+APP_VERSION="0.0.3"
 SM_KEY_PAIR="key_798313656"
 
 jpackage \
