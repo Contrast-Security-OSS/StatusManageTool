@@ -39,23 +39,35 @@ import org.apache.logging.log4j.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.SubMonitor;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.preference.PreferenceStore;
 import org.eclipse.swt.widgets.Shell;
 
 import com.contrastsecurity.statusmanagetool.api.Api;
 import com.contrastsecurity.statusmanagetool.api.ApiKeyApi;
+import com.contrastsecurity.statusmanagetool.api.EventDetailApi;
+import com.contrastsecurity.statusmanagetool.api.EventSummaryApi;
 import com.contrastsecurity.statusmanagetool.api.GroupCreateApi;
 import com.contrastsecurity.statusmanagetool.api.GroupsApi;
+import com.contrastsecurity.statusmanagetool.api.HttpRequestApi;
 import com.contrastsecurity.statusmanagetool.api.OrganizationsApi;
+import com.contrastsecurity.statusmanagetool.api.StoryApi;
 import com.contrastsecurity.statusmanagetool.api.SubStatusOTAliasApi;
 import com.contrastsecurity.statusmanagetool.api.TraceApi;
 import com.contrastsecurity.statusmanagetool.api.TracesApi;
 import com.contrastsecurity.statusmanagetool.exception.ApiException;
+import com.contrastsecurity.statusmanagetool.model.Chapter;
+import com.contrastsecurity.statusmanagetool.model.CollapsedEventSummary;
 import com.contrastsecurity.statusmanagetool.model.ContrastGroup;
+import com.contrastsecurity.statusmanagetool.model.EventDetail;
+import com.contrastsecurity.statusmanagetool.model.EventSummary;
 import com.contrastsecurity.statusmanagetool.model.Filter;
+import com.contrastsecurity.statusmanagetool.model.HttpRequest;
 import com.contrastsecurity.statusmanagetool.model.ItemForVulnerability;
 import com.contrastsecurity.statusmanagetool.model.Organization;
+import com.contrastsecurity.statusmanagetool.model.Risk;
+import com.contrastsecurity.statusmanagetool.model.Story;
 import com.contrastsecurity.statusmanagetool.model.SubStatusOTAlias;
 import com.contrastsecurity.statusmanagetool.model.Trace;
 import com.contrastsecurity.statusmanagetool.preference.PreferenceConstants;
@@ -260,6 +272,48 @@ public class TracesGetWithProgress implements IRunnableWithProgress {
                     traceProcessCount++;
                     monitor.setTaskName(String.format("%s 脆弱性一覧の読み込み...(%d/%d)", org.getName(), traceProcessCount, totalTracesCount)); //$NON-NLS-1$
                     monitor.subTask(trace.getTitle());
+
+                    Api storyApi = new StoryApi(this.shell, this.ps, org, vul.getVulnerability().getUuid());
+                    Story story = null;
+                    try {
+                        story = (Story) storyApi.get();
+                    } catch (Exception e) {
+                        this.shell.getDisplay().syncExec(new Runnable() {
+                            public void run() {
+                                if (!MessageDialog.openConfirm(shell, Messages.getString("vulgetwithprogress.message.dialog.title"), //$NON-NLS-1$
+                                        Messages.getString("vulgetwithprogress.message.dialog.overview.get.error.message"))) { //$NON-NLS-1$
+                                    monitor.setCanceled(true);
+                                }
+                            }
+                        });
+                        Risk risk = new Risk();
+                        risk.setText(Messages.getString("vulgetwithprogress.detail.header.get.error")); //$NON-NLS-1$
+                        story = new Story();
+                        story.setRisk(risk);
+                        story.setChapters(new ArrayList<Chapter>());
+                    }
+                    vul.getVulnerability().setStory(story);
+
+                    Api httpRequestApi = new HttpRequestApi(this.shell, this.ps, org, vul.getVulnerability().getUuid());
+                    HttpRequest httpRequest = (HttpRequest) httpRequestApi.get();
+                    vul.getVulnerability().setHttpRequest(httpRequest);
+
+                    Api eventSummaryApi = new EventSummaryApi(this.shell, this.ps, org, vul.getVulnerability().getUuid());
+                    List<EventSummary> eventSummaries = (List<EventSummary>) eventSummaryApi.get();
+                    vul.getVulnerability().setEventSummaries(eventSummaries);
+                    for (EventSummary es : eventSummaries) {
+                        if (es.getCollapsedEvents() != null && es.getCollapsedEvents().isEmpty()) {
+                            Api eventDetailApi = new EventDetailApi(this.shell, this.ps, org, vul.getVulnerability().getUuid(), es.getId());
+                            EventDetail ed = (EventDetail) eventDetailApi.get();
+                            vul.getVulnerability().addEventDetail(ed);
+                        } else {
+                            for (CollapsedEventSummary ce : es.getCollapsedEvents()) {
+                                Api eventDetailApi = new EventDetailApi(this.shell, this.ps, org, vul.getVulnerability().getUuid(), ce.getId());
+                                EventDetail ed = (EventDetail) eventDetailApi.get();
+                                vul.getVulnerability().addEventDetail(ed);
+                            }
+                        }
+                    }
                 }
                 allTraces.addAll(tmpTraces);
                 boolean traceIncompleteFlg = false;

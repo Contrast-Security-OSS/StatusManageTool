@@ -28,34 +28,35 @@ import java.lang.reflect.Type;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.widgets.Shell;
 
-import com.contrastsecurity.statusmanagetool.json.StoryJson;
+import com.contrastsecurity.statusmanagetool.json.EventDetailJson;
 import com.contrastsecurity.statusmanagetool.model.Organization;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
-public class StoryApi extends Api {
+public class EventDetailApi extends Api {
 
-    private String trace_id;
+    private String traceId;
+    private String eventId;
 
-    public StoryApi(Shell shell, IPreferenceStore ps, Organization org, String trace_id) {
+    public EventDetailApi(Shell shell, IPreferenceStore ps, Organization org, String traceId, String eventId) {
         super(shell, ps, org);
-        this.trace_id = trace_id;
+        this.traceId = traceId;
+        this.eventId = eventId;
     }
 
     @Override
     protected String getUrl() {
         String orgId = this.org.getOrganization_uuid();
-        return String.format("%s/api/ng/%s/traces/%s/story", this.contrastUrl, orgId, this.trace_id); //$NON-NLS-1$
+        return String.format("%s/api/ng/%s/traces/%s/events/%s/details?expand=skip_links", this.contrastUrl, orgId, this.traceId, this.eventId); //$NON-NLS-1$
     }
 
     @Override
     protected Object convert(String response) {
-        System.out.println(response);
         Gson gson = new Gson();
-        Type storyType = new TypeToken<StoryJson>() {
+        Type eventDetailType = new TypeToken<EventDetailJson>() {
         }.getType();
-        StoryJson storyJson = gson.fromJson(response, storyType);
-        return storyJson.getStory();
+        EventDetailJson eventDetailJson = gson.fromJson(response, eventDetailType);
+        return eventDetailJson.getEvent();
     }
 
 }

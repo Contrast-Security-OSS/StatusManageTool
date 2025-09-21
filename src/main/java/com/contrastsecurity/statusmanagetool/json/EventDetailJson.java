@@ -21,41 +21,19 @@
  * 
  */
 
-package com.contrastsecurity.statusmanagetool.api;
+package com.contrastsecurity.statusmanagetool.json;
 
-import java.lang.reflect.Type;
+import com.contrastsecurity.statusmanagetool.model.EventDetail;
 
-import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.swt.widgets.Shell;
+public class EventDetailJson extends ContrastJson {
+    private EventDetail event;
 
-import com.contrastsecurity.statusmanagetool.json.StoryJson;
-import com.contrastsecurity.statusmanagetool.model.Organization;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-
-public class StoryApi extends Api {
-
-    private String trace_id;
-
-    public StoryApi(Shell shell, IPreferenceStore ps, Organization org, String trace_id) {
-        super(shell, ps, org);
-        this.trace_id = trace_id;
+    public EventDetail getEvent() {
+        return event;
     }
 
-    @Override
-    protected String getUrl() {
-        String orgId = this.org.getOrganization_uuid();
-        return String.format("%s/api/ng/%s/traces/%s/story", this.contrastUrl, orgId, this.trace_id); //$NON-NLS-1$
-    }
-
-    @Override
-    protected Object convert(String response) {
-        System.out.println(response);
-        Gson gson = new Gson();
-        Type storyType = new TypeToken<StoryJson>() {
-        }.getType();
-        StoryJson storyJson = gson.fromJson(response, storyType);
-        return storyJson.getStory();
+    public void setEvent(EventDetail event) {
+        this.event = event;
     }
 
 }

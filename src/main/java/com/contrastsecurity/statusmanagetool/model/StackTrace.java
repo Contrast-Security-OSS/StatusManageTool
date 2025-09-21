@@ -21,41 +21,35 @@
  * 
  */
 
-package com.contrastsecurity.statusmanagetool.api;
+package com.contrastsecurity.statusmanagetool.model;
 
-import java.lang.reflect.Type;
+public class StackTrace {
+    private String description;
+    private String type;
+    private int stackFrameIndex;
 
-import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.swt.widgets.Shell;
-
-import com.contrastsecurity.statusmanagetool.json.StoryJson;
-import com.contrastsecurity.statusmanagetool.model.Organization;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-
-public class StoryApi extends Api {
-
-    private String trace_id;
-
-    public StoryApi(Shell shell, IPreferenceStore ps, Organization org, String trace_id) {
-        super(shell, ps, org);
-        this.trace_id = trace_id;
+    public String getDescription() {
+        return description;
     }
 
-    @Override
-    protected String getUrl() {
-        String orgId = this.org.getOrganization_uuid();
-        return String.format("%s/api/ng/%s/traces/%s/story", this.contrastUrl, orgId, this.trace_id); //$NON-NLS-1$
+    public void setDescription(String description) {
+        this.description = description;
     }
 
-    @Override
-    protected Object convert(String response) {
-        System.out.println(response);
-        Gson gson = new Gson();
-        Type storyType = new TypeToken<StoryJson>() {
-        }.getType();
-        StoryJson storyJson = gson.fromJson(response, storyType);
-        return storyJson.getStory();
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public int getStackFrameIndex() {
+        return stackFrameIndex;
+    }
+
+    public void setStackFrameIndex(int stackFrameIndex) {
+        this.stackFrameIndex = stackFrameIndex;
     }
 
 }
